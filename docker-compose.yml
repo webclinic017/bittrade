@@ -4,6 +4,7 @@ services:
   redis_channel:
     image: redis:alpine
   publisher:
+    image: rohit20001221/zerodha_publisher
     build: .
     ports:
       - "8000:8000"
