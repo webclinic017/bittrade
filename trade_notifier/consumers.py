@@ -19,15 +19,13 @@ class Notifier(AsyncWebsocketConsumer):
         )
     
     async def receive(self, text_data):
-        
-        if text_data != 'ping':
-            await self.channel_layer.group_send(
-                self.group_name,
-                {
-                    "type":'broadcast.message',
-                    "message":text_data
-                }
-            )
+        await self.channel_layer.group_send(
+            self.group_name,
+            {
+                "type":'broadcast.message',
+                "message":text_data
+            }
+        )
     
     async def broadcast_message(self, event):
         await self.send(
