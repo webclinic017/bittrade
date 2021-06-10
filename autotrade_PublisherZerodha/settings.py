@@ -25,7 +25,7 @@ SECRET_KEY = 'ij5*+&u7-mzr7v#@q(-ux=fzmvl^2m_y@@kzci!%k(@(-&^1&0'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['ws.bittrade.space']
 
 
 # Application definition
