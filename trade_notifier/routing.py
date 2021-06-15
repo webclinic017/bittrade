@@ -10,4 +10,5 @@ websocket_urls = [
          consumers.TradeNotifierStockFutures.as_asgi()),
     path('ws/ibkr_stocks/', consumers.IBKRStocks.as_asgi()),
     path('ws/ibkr_index/', consumers.IBKRIndex.as_asgi()),
+    path('ws/ibkr_stock_options/', consumers.IBKRStockOptions.as_asgi()),
 ]

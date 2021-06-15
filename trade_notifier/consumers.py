@@ -54,3 +54,6 @@ class IBKRStocks(Notifier):
 
 class IBKRIndex(Notifier):
     group_name = 'ibkr_index'
+
+class IBKRStockOptions(Notifier):
+    group_name = 'ibkr_stock_options'
