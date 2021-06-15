@@ -9,4 +9,5 @@ websocket_urls = [
     path('ws/stock_fut_notifications/',
          consumers.TradeNotifierStockFutures.as_asgi()),
     path('ws/ibkr_stocks/', consumers.IBKRStocks.as_asgi()),
+    path('ws/ibkr_index/', consumers.IBKRIndex.as_asgi()),
 ]

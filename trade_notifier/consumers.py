@@ -51,3 +51,6 @@ class TradeNotifierStockFutures(Notifier):
 
 class IBKRStocks(Notifier):
     group_name = 'ibkr_stocks'
+
+class IBKRIndex(Notifier):
+    group_name = 'ibkr_index'
