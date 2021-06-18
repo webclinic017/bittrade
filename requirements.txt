@@ -3,3 +3,4 @@ channels
 channels_redis
 django-rest-framework
 kiteconnect
+django-cors-headers
