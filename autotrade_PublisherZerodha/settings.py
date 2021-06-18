@@ -173,3 +173,5 @@ REST_FRAMEWORK = {
         # 'rest_framework.authentication.SessionAuthentication',
     ]
 }
+
+ACCOUNT_EMAIL_VERIFICATION = "none"

@@ -16,10 +16,12 @@ Including another URLconf
 from rest_framework.authtoken import views
 from django.contrib import admin
 from django.urls import path, include
+from .views import index
 
 urlpatterns = [
     path('accounts/', include('allauth.urls')),
     path('admin/', admin.site.urls),
     path('api-token-auth/', views.obtain_auth_token),
+    path('', index),
     path('', include('zerodha.urls')),
 ]
