@@ -36,13 +36,22 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'django.contrib.sites',
+    'crispy_forms',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+
     'django.contrib.staticfiles',
+
     'corsheaders',
     'rest_framework',
     'channels',
     'trade_notifier',
     'zerodha',
 ]
+
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -60,7 +69,7 @@ ROOT_URLCONF = 'autotrade_PublisherZerodha.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -141,3 +150,9 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:3000",
     "http://localhost:19006"
 ]
+
+SITE_ID = 1
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+ACCOUNT_AUTHENTICATION_METHOD = "username_email"
