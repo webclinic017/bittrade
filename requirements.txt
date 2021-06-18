@@ -1,5 +1,5 @@
 Django
 channels
 channels_redis
-rest_framework
+django-rest-framework
 kiteconnect
