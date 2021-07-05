@@ -41,6 +41,13 @@ class TradeNotifierIndex(Notifier):
     group_name = 'index'
 
 
+class TradeNotifierIndexOption(Notifier):
+    group_name = 'index_option'
+
+
+class TradeNotifierIndexFutures(Notifier):
+    group_name = 'index_futures'
+
 class TradeNotifierStockOptions(Notifier):
     group_name = 'stock_options'
 
