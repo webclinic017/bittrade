@@ -3,6 +3,7 @@ from django.http import HttpResponse
 from kiteconnect import KiteConnect
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.request import Request
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from .functions import (
@@ -197,7 +198,7 @@ class ZerodhaOrders(APIView):
     
     permission_classes = [IsAuthenticated]
     
-    def get(self, request):
+    def post(self, request : Request):
         kite = check_authorization(request.data)
         orders = []
         orders_ = kite.orders()
