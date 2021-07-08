@@ -5,7 +5,16 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
-from .functions import check_validity, limit_buy_order, limit_sell_order, market_buy_order, market_sell_order, validate_limit_api, validate_market_api
+from .functions import (
+    check_validity, 
+    limit_buy_order, 
+    limit_sell_order, 
+    market_buy_order, 
+    market_sell_order, 
+    validate_limit_api, 
+    validate_market_api, 
+    check_authorization
+)
 # Create your views here.
 
 
@@ -181,3 +190,20 @@ class LimitOrderSell(APIView):
             return Response({
                 'error': str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+# reterive all orders
+class ZerodhaOrders(APIView):
+    
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        kite = check_authorization(request.data)
+        orders = []
+        orders_ = kite.orders()
+        
+        for order in orders_:
+            if order['status'] == 'COMPLETE':
+                orders.append(order)
+        
+        return Response(orders, status=status.HTTP_200_OK)

@@ -10,5 +10,6 @@ urlpatterns = [
     path('place/market_order/buy', views.MarketOrderBuy.as_view()),
     path('place/market_order/sell', views.MarketOrderSell.as_view()),
     path('place/limit_order/buy', views.LimitOrderBuy.as_view()),
-    path('place/limit_order/sell', views.LimitOrderSell.as_view())
+    path('place/limit_order/sell', views.LimitOrderSell.as_view()),
+    path('orders/', views.ZerodhaOrders.as_view()),
 ]
