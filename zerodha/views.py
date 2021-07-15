@@ -163,7 +163,7 @@ class LimitOrderSell(APIView):
     permission_classes = [IsAuthenticated, ]
 
     def post(self, request):
-        data = request.json
+        data = request.data
         try:
             kite_ = validate_limit_api(data)
 
