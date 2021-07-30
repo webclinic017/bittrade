@@ -49,13 +49,13 @@ def limit_buy_order(kite: KiteConnect, tradingsymbol, exchange, quantity, price)
 
 
 def check_validity(data):
-    assert 'api_key' in data
-    assert 'request_token' in data
-    assert 'api_secret' in data
+    assert 'api_key' in data, 'provide api key'
+    assert 'request_token' in data, 'provide request token'
+    assert 'api_secret' in data, 'provide api secret'
 
 def check_authorization(data):
-    assert 'api_key' in data
-    assert 'access_token' in data
+    assert 'api_key' in data, 'provide api key'
+    assert 'access_token' in data, 'provide access token'
 
     kite = KiteConnect(api_key=data['api_key'], access_token=data['access_token'])
     return kite

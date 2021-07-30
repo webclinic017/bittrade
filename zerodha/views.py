@@ -207,7 +207,7 @@ class PnlAPI(APIView):
     permission_classes = [IsAuthenticated,]
     def post(self, request):
         sum = 0
-        kite = check_validity(request.data)
+        kite = check_authorization(request.data)
         positions = kite.positions()
         for pos in positions['net']:
             pnl = pos['pnl']
