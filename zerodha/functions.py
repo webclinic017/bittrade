@@ -1,5 +1,5 @@
 from kiteconnect import KiteConnect # type: ignore
-
+import time
 
 
 def market_buy_order(kite: KiteConnect, tradingsymbol, exchange, quantity):
@@ -80,3 +80,11 @@ def validate_limit_api(data):
     
     kite_ = KiteConnect(api_key=data['api_key'], access_token=data['access_token'])
     return kite_
+
+def validate_order(order_id : int, kite : KiteConnect):
+    time.sleep(1)
+    order_history = kite.order_history(order_id=order_id)
+        
+    for order in order_history:
+        if order['status'] == 'REJECTED':
+            raise Exception('Order rejected')

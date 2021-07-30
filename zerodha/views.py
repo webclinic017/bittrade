@@ -14,7 +14,8 @@ from .functions import (
     market_sell_order, 
     validate_limit_api, 
     validate_market_api, 
-    check_authorization
+    check_authorization,
+    validate_order
 )
 # Create your views here.
 
@@ -72,6 +73,7 @@ class MarketOrderBuy(APIView):
             try:
                 order_id = market_buy_order(
                     kite_, data['trading_symbol'], exchange, data['quantity'])
+                validate_order(order_id, kite_)
                 return Response({
                     'message': f'order id is {order_id}'
                 }, status=status.HTTP_200_OK)
@@ -105,6 +107,7 @@ class MarketOrderSell(APIView):
             try:
                 order_id = market_sell_order(
                     kite_, data['trading_symbol'], exchange, data['quantity'])
+                validate_order(order_id, kite_)
                 return Response({
                     'message': f'order id is {order_id}'
                 }, status=status.HTTP_200_OK)
@@ -142,6 +145,7 @@ class LimitOrderBuy(APIView):
             try:
                 order_id = limit_buy_order(
                     kite_, data['trading_symbol'], exchange, data['quantity'], data['price'])
+                validate_order(order_id, kite_)
                 return Response({
                     'message': f'order id is {order_id}'
                 }, status=status.HTTP_200_OK)
@@ -177,6 +181,7 @@ class LimitOrderSell(APIView):
             try:
                 order_id = limit_sell_order(
                     kite_, data['trading_symbol'], exchange, data['quantity'], data['price'])
+                validate_order(order_id, kite_)
                 return Response({
                     'message': f'order id is {order_id}'
                 }, status=status.HTTP_200_OK)
