@@ -20,10 +20,11 @@ from .functions import (
 # Create your views here.
 
 
+# return the request token to the user
 def zerodha_auth(request):
     return HttpResponse(request.GET['request_token'])
 
-
+# get the access token of zerodha api
 class ZerodhaAccessToken(APIView):
     def post(self, request):
         data = request.data
@@ -39,7 +40,7 @@ class ZerodhaAccessToken(APIView):
             'access_token': data_['access_token']
         }, status=status.HTTP_200_OK)
 
-
+# get zerodha login url
 class ZerodhaLoginUrl(APIView):
     def post(self, request):
         assert 'api_key' in request.data
@@ -53,11 +54,8 @@ class ZerodhaLoginUrl(APIView):
 
 # market orders
 
-
 class MarketOrderBuy(APIView):
-
     permission_classes = [IsAuthenticated, ]
-
     def post(self, request):
         data = request.data
         try:
@@ -87,11 +85,8 @@ class MarketOrderBuy(APIView):
                 'error': str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-
 class MarketOrderSell(APIView):
-
     permission_classes = [IsAuthenticated, ]
-
     def post(self, request):
         data = request.data
         try:
@@ -125,11 +120,8 @@ class MarketOrderSell(APIView):
 
 # limit orders
 
-
 class LimitOrderBuy(APIView):
-
     permission_classes = [IsAuthenticated, ]
-
     def post(self, request):
         data = request.data
         try:
@@ -163,9 +155,7 @@ class LimitOrderBuy(APIView):
 
 
 class LimitOrderSell(APIView):
-
     permission_classes = [IsAuthenticated, ]
-
     def post(self, request):
         data = request.data
         try:
@@ -200,9 +190,7 @@ class LimitOrderSell(APIView):
 
 # reterive all orders
 class ZerodhaOrders(APIView):
-    
     permission_classes = [IsAuthenticated]
-    
     def post(self, request : Request):
         kite = check_authorization(request.data)
         orders = []
@@ -213,3 +201,18 @@ class ZerodhaOrders(APIView):
                 orders.append(order)
         
         return Response(orders, status=status.HTTP_200_OK)
+
+# calculate the pnl
+class PnlAPI(APIView):
+    permission_classes = [IsAuthenticated,]
+    def post(self, request):
+        sum = 0
+        kite = check_validity(request.data)
+        positions = kite.positions()
+        for pos in positions['net']:
+            pnl = pos['pnl']
+            sum += pnl
+        
+        return Response({
+            'pnl': sum
+        })
