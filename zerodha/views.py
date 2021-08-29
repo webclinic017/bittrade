@@ -2,6 +2,7 @@
 from django.http import HttpResponse
 from kiteconnect import KiteConnect
 from rest_framework.views import APIView
+from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework.request import Request
 from rest_framework import status
@@ -17,6 +18,8 @@ from .functions import (
     check_authorization,
     validate_order
 )
+from .models import MarketOrder, LimitOrder
+from .serializers import MarketOrderSerializer, LimitOrderSerializer
 # Create your views here.
 
 
@@ -72,6 +75,16 @@ class MarketOrderBuy(APIView):
                 order_id = market_buy_order(
                     kite_, data['trading_symbol'], exchange, data['quantity'])
                 validate_order(order_id, kite_)
+                
+                # create a market order row in the database
+                MarketOrder.objects.create(
+                    user=request.user,
+                    trading_symbol=data['trading_symbol'],
+                    exchange=data['exchange'],
+                    quantity=data['quantity'],
+                    action='BUY'
+                )
+                
                 return Response({
                     'message': f'order id is {order_id}'
                 }, status=status.HTTP_200_OK)
@@ -103,6 +116,16 @@ class MarketOrderSell(APIView):
                 order_id = market_sell_order(
                     kite_, data['trading_symbol'], exchange, data['quantity'])
                 validate_order(order_id, kite_)
+                
+                # create a market order row in the database
+                MarketOrder.objects.create(
+                    user=request.user,
+                    trading_symbol=data['trading_symbol'],
+                    exchange=data['exchange'],
+                    quantity=data['quantity'],
+                    action='SELL'
+                )
+                
                 return Response({
                     'message': f'order id is {order_id}'
                 }, status=status.HTTP_200_OK)
@@ -138,6 +161,17 @@ class LimitOrderBuy(APIView):
                 order_id = limit_buy_order(
                     kite_, data['trading_symbol'], exchange, data['quantity'], data['price'])
                 validate_order(order_id, kite_)
+                
+                # create limit order object
+                LimitOrder.objects.create(
+                    user=request.user,
+                    trading_symbol=data['trading_symbol'],
+                    exchange=data['exchange'],
+                    quantity=data['quantity'],
+                    price=data['price'],
+                    action='BUY'
+                )
+                
                 return Response({
                     'message': f'order id is {order_id}'
                 }, status=status.HTTP_200_OK)
@@ -172,6 +206,17 @@ class LimitOrderSell(APIView):
                 order_id = limit_sell_order(
                     kite_, data['trading_symbol'], exchange, data['quantity'], data['price'])
                 validate_order(order_id, kite_)
+                
+                # create limit order object
+                LimitOrder.objects.create(
+                    user=request.user,
+                    trading_symbol=data['trading_symbol'],
+                    exchange=data['exchange'],
+                    quantity=data['quantity'],
+                    price=data['price'],
+                    action='SELL'
+                )
+                
                 return Response({
                     'message': f'order id is {order_id}'
                 }, status=status.HTTP_200_OK)
@@ -188,20 +233,22 @@ class LimitOrderSell(APIView):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-# reterive all orders
-class ZerodhaOrders(APIView):
+# reterive all market orders
+class MarketOrderList(ListAPIView):
+    serializer_class = MarketOrderSerializer
     permission_classes = [IsAuthenticated]
-    def post(self, request : Request):
-        kite = check_authorization(request.data)
-        orders = []
-        orders_ = kite.orders()
-        
-        for order in orders_:
-            if order['status'] == 'COMPLETE':
-                orders.append(order)
-        
-        return Response(orders, status=status.HTTP_200_OK)
+    
+    def get_queryset(self):
+        return self.request.user.market_orders.all()
 
+# reterive all limit orders
+class LimitOrderList(ListAPIView):
+    serializer_class = LimitOrderSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        return self.request.user.limit_orders.all()
+    
 # calculate the pnl
 class PnlAPI(APIView):
     permission_classes = [IsAuthenticated,]
