@@ -6,6 +6,8 @@ services:
   publisher:
     image: rohit20001221/zerodha_publisher
     build: .
+    volumes:
+      - .:/app
     ports:
       - "8000:8000"
     command: python manage.py runserver 0.0.0.0:8000

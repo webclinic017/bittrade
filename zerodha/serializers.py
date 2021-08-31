@@ -1,12 +1,12 @@
-from rest_framework.serializers import ModelSerializer
-from .models import MarketOrder, LimitOrder
+from rest_framework import serializers
+from zerodha.models import MarketOrder, LimitOrder
 
-class MarketOrderSerializer(ModelSerializer):
+class MarketOrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = MarketOrder
         fields = '__all__'
 
-class LimitOrderSerializer(ModelSerializer):
+class LimitOrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = LimitOrder
         fields = '__all__'

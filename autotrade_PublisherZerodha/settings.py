@@ -41,15 +41,14 @@ INSTALLED_APPS = [
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
-
+    'zerodha',
     'django.contrib.staticfiles',
-
     'corsheaders',
     'rest_framework',
     'rest_framework.authtoken',
     'channels',
     'trade_notifier',
-    'zerodha',
+   
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
@@ -96,6 +95,7 @@ ASGI_APPLICATION = 'autotrade_PublisherZerodha.asgi.application'
 #         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
 #     }
 # }
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',

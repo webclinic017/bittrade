@@ -19,9 +19,9 @@ from django.urls import path, include
 from .views import index
 
 urlpatterns = [
+    path('', include('zerodha.urls')),
     path('accounts/', include('allauth.urls')),
     path('admin/', admin.site.urls),
     path('api-token-auth/', views.obtain_auth_token),
     path('', index),
-    path('', include('zerodha.urls')),
 ]

@@ -1,5 +1,4 @@
 from django.urls import path
-from django.urls import path
 from . import views
 
 
@@ -11,7 +10,7 @@ urlpatterns = [
     path('place/market_order/sell', views.MarketOrderSell.as_view()),
     path('place/limit_order/buy', views.LimitOrderBuy.as_view()),
     path('place/limit_order/sell', views.LimitOrderSell.as_view()),
-    path('orders/limit', views.MarketOrderList.as_view()),
-    path('orders/market', views.LimitOrderList.as_view()),
     path('pnl/', views.PnlAPI.as_view()),
+    path('orders/market', views.UsersMarketOrderListAPI.as_view()),
+    path('orders/limit', views.UsersLimitOrderListAPI.as_view()),
 ]

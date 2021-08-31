@@ -12,14 +12,13 @@ import os
 from channels.auth import AuthMiddlewareStack
 from channels.routing import ProtocolTypeRouter, URLRouter
 from django.core.asgi import get_asgi_application
-from .middleware import QueryMiddleWare
 import trade_notifier.routing
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'autotrade_PublisherZerodha.settings')
 
 application = ProtocolTypeRouter({
     'http':get_asgi_application(),
-    'websocket': AuthMiddlewareStack(QueryMiddleWare(URLRouter(
+    'websocket': AuthMiddlewareStack(URLRouter(
         trade_notifier.routing.websocket_urls
-    )))
+    ))
 })

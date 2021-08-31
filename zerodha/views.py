@@ -2,9 +2,7 @@
 from django.http import HttpResponse
 from kiteconnect import KiteConnect
 from rest_framework.views import APIView
-from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
-from rest_framework.request import Request
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from .functions import (
@@ -18,8 +16,9 @@ from .functions import (
     check_authorization,
     validate_order
 )
-from .models import MarketOrder, LimitOrder
-from .serializers import MarketOrderSerializer, LimitOrderSerializer
+from zerodha.models import MarketOrder, LimitOrder
+from zerodha.serializers import MarketOrderSerializer, LimitOrderSerializer
+from rest_framework import generics
 # Create your views here.
 
 
@@ -233,22 +232,6 @@ class LimitOrderSell(APIView):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-# reterive all market orders
-class MarketOrderList(ListAPIView):
-    serializer_class = MarketOrderSerializer
-    permission_classes = [IsAuthenticated]
-    
-    def get_queryset(self):
-        return self.request.user.market_orders.all()
-
-# reterive all limit orders
-class LimitOrderList(ListAPIView):
-    serializer_class = LimitOrderSerializer
-    permission_classes = [IsAuthenticated]
-    
-    def get_queryset(self):
-        return self.request.user.limit_orders.all()
-    
 # calculate the pnl
 class PnlAPI(APIView):
     permission_classes = [IsAuthenticated,]
@@ -263,3 +246,17 @@ class PnlAPI(APIView):
         return Response({
             'pnl': sum
         })
+
+class UsersMarketOrderListAPI(generics.ListAPIView):
+    serializer_class = MarketOrderSerializer
+    permission_classes = [IsAuthenticated,]
+    
+    def get_queryset(self):
+        return self.request.user.market_orders.all()
+# reterive all limit orders
+class UsersLimitOrderListAPI(generics.ListAPIView):
+    serializer_class = LimitOrderSerializer
+    permission_classes = [IsAuthenticated,]
+    
+    def get_queryset(self):
+        return self.request.user.limit_orders.all()
