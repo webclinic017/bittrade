@@ -19,6 +19,9 @@ from .functions import (
 from zerodha.models import MarketOrder, LimitOrder
 from zerodha.serializers import MarketOrderSerializer, LimitOrderSerializer
 from rest_framework import generics
+
+from zerodha.pagenation import OrdersPagenation
+
 # Create your views here.
 
 
@@ -247,16 +250,20 @@ class PnlAPI(APIView):
             'pnl': sum
         })
 
+# reterive all market orders
 class UsersMarketOrderListAPI(generics.ListAPIView):
     serializer_class = MarketOrderSerializer
     permission_classes = [IsAuthenticated,]
+    pagination_class = OrdersPagenation
     
     def get_queryset(self):
         return self.request.user.market_orders.all()
+
 # reterive all limit orders
 class UsersLimitOrderListAPI(generics.ListAPIView):
     serializer_class = LimitOrderSerializer
     permission_classes = [IsAuthenticated,]
+    pagination_class = OrdersPagenation
     
     def get_queryset(self):
         return self.request.user.limit_orders.all()
