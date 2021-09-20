@@ -257,7 +257,7 @@ class UsersMarketOrderListAPI(generics.ListAPIView):
     pagination_class = OrdersPagenation
     
     def get_queryset(self):
-        return self.request.user.market_orders.all()
+        return self.request.user.market_orders.all().order_by('-id')
 
 # reterive all limit orders
 class UsersLimitOrderListAPI(generics.ListAPIView):
@@ -266,4 +266,4 @@ class UsersLimitOrderListAPI(generics.ListAPIView):
     pagination_class = OrdersPagenation
     
     def get_queryset(self):
-        return self.request.user.limit_orders.all()
+        return self.request.user.limit_orders.all().order_by('-id')
