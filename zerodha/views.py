@@ -250,6 +250,16 @@ class PnlAPI(APIView):
             'pnl': sum
         })
 
+# get the margins
+class MarginsAPI(APIView):
+    permission_classes = [IsAuthenticated,]
+    
+    def post(self, request):
+        kite = check_authorization(request.data)
+        margins = kite.margins()
+        return Response(margins, status=status.HTTP_200_OK)
+
+
 # reterive all market orders
 class UsersMarketOrderListAPI(generics.ListAPIView):
     serializer_class = MarketOrderSerializer
