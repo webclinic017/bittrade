@@ -13,5 +13,5 @@ urlpatterns = [
     path('pnl/', views.PnlAPI.as_view()),
     path('orders/market', views.UsersMarketOrderListAPI.as_view()),
     path('orders/limit', views.UsersLimitOrderListAPI.as_view()),
-    path('margins', views.MarginsAPI.as_view()),
+    path('margins/', views.MarginsAPI.as_view()),
 ]
