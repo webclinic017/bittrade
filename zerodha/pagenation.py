@@ -8,13 +8,20 @@ class OrdersPagenation(PageNumberPagination):
     
     def get_paginated_response(self, data):
         url_next = self.get_next_link()
-        url_next = url_next.replace("http", "https")
-        url_next = url_next.replace("localhost:8000", "ws.bittrade.space")
+        
+        try:
+            url_next = url_next.replace("http", "https")
+            url_next = url_next.replace("localhost:8000", "ws.bittrade.space")
+        except:
+            pass
         
         url_prev = self.get_previous_link()
-        url_prev = url_prev.replace("http", "https")
-        url_prev = url_prev.replace("localhost:8000", "ws.bittrade.space")
         
+        try:
+            url_prev = url_prev.replace("http", "https")
+            url_prev = url_prev.replace("localhost:8000", "ws.bittrade.space")
+        except:
+            pass
         
         return Response(OrderedDict([
             ('count', self.page.paginator.count),
