@@ -16,8 +16,8 @@ from .functions import (
     check_authorization,
     validate_order
 )
-from zerodha.models import MarketOrder, LimitOrder
-from zerodha.serializers import MarketOrderSerializer, LimitOrderSerializer
+from zerodha.models import MarketOrder, LimitOrder, Position
+from zerodha.serializers import MarketOrderSerializer, LimitOrderSerializer, PositionSerializer
 from rest_framework import generics
 
 from zerodha.pagenation import OrdersPagenation
@@ -277,3 +277,85 @@ class UsersLimitOrderListAPI(generics.ListAPIView):
     
     def get_queryset(self):
         return self.request.user.limit_orders.all().order_by('-id')
+
+# reterive all the positions
+class PositionsListAPI(APIView):
+    
+    serializer_class = PositionSerializer
+    permission_classes = [IsAuthenticated,]
+    
+    def get(self, request):
+        # get the user
+        positions = request.user.positions.all()
+        serializer = self.serializer_class(positions, many=True)
+        
+        return Response(
+            serializer.data,
+            status = status.HTTP_200_OK
+        )
+    
+
+# reterive a particular position and also try to update it
+class PositionDetailAPI(APIView):
+    
+    serializer = PositionSerializer
+    permission_classes = [IsAuthenticated,]
+    
+    # reterive a particular api
+    def get(self, request, token):
+        
+        if request.user.positions.filter(instrument_token=token).exists():
+            serializer = self.serializer(request.user.position.get(user=request.user))
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(status = status.HTTP_404_NOT_FOUND)
+        
+    
+    # create or update the position of the user
+    def post(self, request, token):
+        
+        # check if the position with the given token exist
+        if request.user.positions.filter(instrument_token=token).exists():
+            # the position exist
+            position = request.user.position.get(instrument_token=token)
+            
+            # check if the request is about entry or exit
+            if request.data['tag'] == 'ENTRY':
+                position.quantity += request.data['quantity']
+            else:
+                position.quantity -= request.data['quantity']
+            
+            # price field is only updated for the limit orders
+            position.price = request.data('price', None)
+            
+            # average entry price
+            position.entry_price += request.data['entry_price']
+            position.entry_price /= 2
+            
+            if position.quantity <= 0:
+                position.delete()
+            else:
+                position.save()
+                
+        else:
+            # the position dosent exist create the position
+            if request.data['tag'] == 'ENTRY':
+                position = Position(
+                    user = request.user,
+                    entry_price = request.data['entry_price'],
+                    instrument_token = request.data['instrument_token'],
+                    ltp = request.data['ltp'],
+                    price = request.data.get('price', None),
+                    quantity = request.data['quantity'],
+                    tag = request.data['tag'],
+                    trading_symbol = request.data['trading_symbol'],
+                    uri = request.data['uri']
+                )
+                    
+                position.save()
+        
+        return Response(status=status.HTTP_200_OK)
+            
+
+        
+        

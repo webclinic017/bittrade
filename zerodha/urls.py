@@ -14,4 +14,6 @@ urlpatterns = [
     path('orders/market', views.UsersMarketOrderListAPI.as_view()),
     path('orders/limit', views.UsersLimitOrderListAPI.as_view()),
     path('margins/', views.MarginsAPI.as_view()),
+    path('positions', views.PositionsListAPI.as_view()),
+    path('position/<str:instrument_token>', views.PositionDetailAPI.as_view()),
 ]
