@@ -82,7 +82,7 @@ def validate_limit_api(data):
     return kite_
 
 def validate_order(order_id : int, kite : KiteConnect):
-    time.sleep(1)
+    time.sleep(0.5)
     order_history = kite.order_history(order_id=order_id)
     
     for order in order_history:

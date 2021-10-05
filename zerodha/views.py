@@ -305,7 +305,7 @@ class PositionDetailAPI(APIView):
     def get(self, request, token):
         
         if request.user.positions.filter(instrument_token=token).exists():
-            serializer = self.serializer(request.user.position.get(user=request.user))
+            serializer = self.serializer(request.user.positions.get(instrument_token=token))
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
             return Response(status = status.HTTP_404_NOT_FOUND)
@@ -317,7 +317,7 @@ class PositionDetailAPI(APIView):
         # check if the position with the given token exist
         if request.user.positions.filter(instrument_token=token).exists():
             # the position exist
-            position = request.user.position.get(instrument_token=token)
+            position = request.user.positions.get(instrument_token=token)
             
             # check if the request is about entry or exit
             if request.data['tag'] == 'ENTRY':
@@ -326,7 +326,7 @@ class PositionDetailAPI(APIView):
                 position.quantity -= request.data['quantity']
             
             # price field is only updated for the limit orders
-            position.price = request.data('price', None)
+            position.price = request.data.get('price', None)
             
             # average entry price
             position.entry_price += request.data['entry_price']
