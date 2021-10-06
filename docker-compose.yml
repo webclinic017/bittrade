@@ -10,4 +10,4 @@ services:
       - .:/app
     ports:
       - "8000:8000"
-    command: daphne autotrade_PublisherZerodha.asgi:application -b 0.0.0.0 -p 8000
+    command: daphne bittrade.asgi:application -b 0.0.0.0 -p 8000

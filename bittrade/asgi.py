@@ -1,5 +1,5 @@
 """
-ASGI config for autotrade_PublisherZerodha project.
+ASGI config for bittrade project.
 
 It exposes the ASGI callable as a module-level variable named ``application``.
 
@@ -14,10 +14,10 @@ from channels.routing import ProtocolTypeRouter, URLRouter
 from django.core.asgi import get_asgi_application
 import trade_notifier.routing
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'autotrade_PublisherZerodha.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'bittrade.settings')
 
 application = ProtocolTypeRouter({
-    'http':get_asgi_application(),
+    'http': get_asgi_application(),
     'websocket': AuthMiddlewareStack(URLRouter(
         trade_notifier.routing.websocket_urls
     ))
