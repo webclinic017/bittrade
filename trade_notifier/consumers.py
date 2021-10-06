@@ -33,34 +33,5 @@ class Notifier(AsyncWebsocketConsumer):
         )
 
 
-class TradeNotifierStocks(Notifier):
-    group_name = 'stocks'
-
-
-class TradeNotifierIndex(Notifier):
-    group_name = 'index'
-
-
-class TradeNotifierIndexOption(Notifier):
-    group_name = 'index_option'
-
-
-class TradeNotifierIndexFutures(Notifier):
-    group_name = 'index_futures'
-
-class TradeNotifierStockOptions(Notifier):
-    group_name = 'stock_options'
-
-
-class TradeNotifierStockFutures(Notifier):
-    group_name = 'stock_futures'
-
-
-class IBKRStocks(Notifier):
-    group_name = 'ibkr_stocks'
-
-class IBKRIndex(Notifier):
-    group_name = 'ibkr_index'
-
-class IBKRStockOptions(Notifier):
-    group_name = 'ibkr_stock_options'
+class TradeNotifier(Notifier):
+    group_name = 'indian'
