@@ -9,8 +9,8 @@ services:
     volumes:
       - .:/app
     ports:
-      - "8000:8000"
-    command: daphne bittrade.asgi:application -b 0.0.0.0 -p 8000
+      - "80:80"
+    command: daphne bittrade.asgi:application -b 0.0.0.0
   celery:
     image: rohit20001221/zerodha_publisher
     build: .
