@@ -1,30 +1,10 @@
 from celery import shared_task
 import time
 import datetime
-import requests
 import json
+from zerodha.utils import post, get, make_order_request, get_position, BASE_URL
 
-
-def post(uri, headers, body):
-    res = requests.post(uri, body, headers=headers)
-    return res
-
-
-def get(uri, headers):
-    res = requests.get(uri, headers=headers)
-    return res
-
-
-def make_order_request(trade):
-    token = trade["token"]
-    return post(
-        trade["endpoint"],
-        {
-            "Content-Type": "application/json",
-            "Authorization": f"Token {token}"
-        },
-        json.dumps(trade)
-    )
+MARGINS_URL = BASE_URL + '/margins/'
 
 
 @shared_task
@@ -33,7 +13,7 @@ def place_trade(trade):
     token = trade['token']
     if trade['tag'] == 'ENTRY':
         margins = post(
-            trade['margins'],
+            MARGINS_URL,
             {
                 'Content-Type': 'application/json',
                 'Authorization': f'Token {token}',
@@ -48,11 +28,9 @@ def place_trade(trade):
         if price <= margins['equity']['available']['cash'] / 2:
             # make the request
             res = make_order_request(trade)
-            response = res.json()
-            status = res.status_code
             # update the position
             position = post(
-                trade["position"],
+                get_position(trade['instrument_token']),
                 {
                     "Content-Type": "application/json",
                     "Authorization": f"Token {token}"
@@ -66,19 +44,19 @@ def place_trade(trade):
     elif trade['tag'] == 'EXIT':
         # check for the position
         position = get(
-            trade['position'],
+            get_position(trade['instrument_token']),
             {
                 "Authorization": f'Token {token}'
             }
         )
         if position.status_code == 404:
-            return "", 404
+            return False
 
+        position = position.json()
+        trade["quantity"] = position["quantity"] if position["quantity"] <= 2000 else 2000
         res = make_order_request(trade)
-        response = res.json()
-        status = res.status_code
         position = post(
-            trade["position"],
+            get_position(trade['instrument_token']),
             {
                 "Content-Type": "application/json",
                 "Authorization": f"Token {token}"
@@ -86,7 +64,7 @@ def place_trade(trade):
             json.dumps(trade)
         )
 
-    return response, status
+    return True
 
 
 @shared_task
