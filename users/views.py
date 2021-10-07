@@ -6,35 +6,40 @@ from rest_framework import status
 from .serializers import UserProfileSerializer
 from .models import UserProfile
 
-class IsLoggedIn(APIView):    
-    permission_classes = [IsAuthenticated,]
-    
+
+class IsLoggedIn(APIView):
+    permission_classes = [IsAuthenticated, ]
+
     def get(self, request):
         return Response(status=status.HTTP_200_OK)
 
+
 class UpdateProfile(APIView):
-    
-    permission_classes = [IsAuthenticated,]
-    
+
+    permission_classes = [IsAuthenticated, ]
+
     def put(self, request):
-        
+
         UserProfile.objects.update_or_create(
-            user                 = request.user,
-            api_key              = request.data['api_key'],
-            api_secret           = request.data['api_secret'],
-            investment           = request.data['investment'],
-            nifty_investment     = request.data['nifty_investment'],
-            banknifty_investment = request.data['banknifty_investment'],
-            max_loss             = request.data['max_loss'],
-            max_profit           = request.data['max_profit']
+            identifier='user',
+            defaults=request.data
+            # user                 = request.user,
+            # api_key              = request.data['api_key'],
+            # api_secret           = request.data['api_secret'],
+            # investment           = request.data['investment'],
+            # nifty_investment     = request.data['nifty_investment'],
+            # banknifty_investment = request.data['banknifty_investment'],
+            # max_loss             = request.data['max_loss'],
+            # max_profit           = request.data['max_profit']
         )
-        
+
         return Response(status=status.HTTP_200_OK)
 
+
 class ProfileDetail(APIView):
-    
-    permission_classes = [IsAuthenticated,]
-    
+
+    permission_classes = [IsAuthenticated, ]
+
     def get(self, request):
         try:
             serializer = UserProfileSerializer(request.user.userprofile)
