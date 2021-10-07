@@ -1,5 +1,4 @@
-from kiteconnect import KiteConnect # type: ignore
-import time
+from kiteconnect import KiteConnect  # type: ignore
 
 
 def market_buy_order(kite: KiteConnect, tradingsymbol, exchange, quantity):
@@ -53,12 +52,15 @@ def check_validity(data):
     assert 'request_token' in data, 'provide request token'
     assert 'api_secret' in data, 'provide api secret'
 
+
 def check_authorization(data):
     assert 'api_key' in data, 'provide api key'
     assert 'access_token' in data, 'provide access token'
 
-    kite = KiteConnect(api_key=data['api_key'], access_token=data['access_token'])
+    kite = KiteConnect(api_key=data['api_key'],
+                       access_token=data['access_token'])
     return kite
+
 
 def validate_market_api(data):
     assert 'api_key' in data, 'provide api key'
@@ -66,9 +68,11 @@ def validate_market_api(data):
     assert 'trading_symbol' in data, 'provide trading_symbol'
     assert 'exchange' in data, 'provide exchange'
     assert 'quantity' in data, 'provide quantity'
-    
-    kite_ = KiteConnect(api_key=data['api_key'], access_token=data['access_token'])
+
+    kite_ = KiteConnect(api_key=data['api_key'],
+                        access_token=data['access_token'])
     return kite_
+
 
 def validate_limit_api(data):
     assert 'api_key' in data, 'provide api key'
@@ -77,14 +81,14 @@ def validate_limit_api(data):
     assert 'exchange' in data, 'provide exchange'
     assert 'quantity' in data, 'provide quantity'
     assert 'price' in data, 'provide price'
-    
-    kite_ = KiteConnect(api_key=data['api_key'], access_token=data['access_token'])
+
+    kite_ = KiteConnect(api_key=data['api_key'],
+                        access_token=data['access_token'])
     return kite_
 
-def validate_order(order_id : int, kite : KiteConnect):
-    time.sleep(0.5)
+
+def validate_order(order_id: int, kite: KiteConnect):
     order_history = kite.order_history(order_id=order_id)
-    
     for order in order_history:
         if order['status'] == 'REJECTED':
             raise Exception('Order rejected')

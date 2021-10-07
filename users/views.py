@@ -20,15 +20,6 @@ class UpdateProfile(APIView):
 
     def put(self, request):
 
-        # user                 = request.user,
-        # api_key              = request.data['api_key'],
-        # api_secret           = request.data['api_secret'],
-        # investment           = request.data['investment'],
-        # nifty_investment     = request.data['nifty_investment'],
-        # banknifty_investment = request.data['banknifty_investment'],
-        # max_loss             = request.data['max_loss'],
-        # max_profit           = request.data['max_profit']
-
         UserProfile.objects.update_or_create(
             user=request.user,
             defaults=request.data
