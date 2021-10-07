@@ -10,7 +10,7 @@ services:
       - .:/app
     ports:
       - "80:80"
-    command: daphne bittrade.asgi:application -b 0.0.0.0
+    command: daphne bittrade.asgi:application -b 0.0.0.0 -p 80
   celery:
     image: rohit20001221/zerodha_publisher
     build: .
