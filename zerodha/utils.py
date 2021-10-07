@@ -1,7 +1,7 @@
 import requests
 import json
 
-BASE_URL = 'http://publisher:8000'
+BASE_URL = 'http://publisher'
 
 
 def post(uri, headers, body):
