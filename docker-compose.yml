@@ -16,6 +16,6 @@ services:
     build: .
     volumes:
       - .:/app
-    command: "celery -A bittrade worker -l INFO -c 1"
+    command: "celery -A bittrade worker -l INFO"
     depends_on:
       - redis_channel

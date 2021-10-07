@@ -3,13 +3,19 @@ import time
 import datetime
 import json
 from zerodha.utils import post, get, make_order_request, get_position, BASE_URL
+import redis
+import redis_lock
 
 MARGINS_URL = BASE_URL + '/margins/'
 
+redis_client = redis.StrictRedis(host='redis_channel')
+
 
 @shared_task
-def place_trade(trade):
+def place_trade(user_id, trade):
     # print(trade)
+    lock = redis_lock.Lock(redis_client, str(user_id), 2)
+    lock.acquire()
     token = trade['token']
     if trade['tag'] == 'ENTRY':
         margins = post(
@@ -39,6 +45,7 @@ def place_trade(trade):
             )
             print(position)
         else:
+            lock.release()
             raise Exception('insufficent margins')
 
     elif trade['tag'] == 'EXIT':
@@ -64,6 +71,7 @@ def place_trade(trade):
             json.dumps(trade)
         )
 
+    lock.release()
     return True
 
 

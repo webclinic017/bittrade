@@ -21,6 +21,7 @@ from rest_framework import generics
 from zerodha.pagenation import OrdersPagenation
 from zerodha.tasks import place_trade
 from celery.result import AsyncResult
+import datetime
 # return the request token to the user
 
 
@@ -379,7 +380,8 @@ class EnqueueTrade(APIView):
     permission_classes = [IsAuthenticated, ]
 
     def post(self, request):
-        task = place_trade.delay(request.data)
+        user_id = request.user.id
+        task = place_trade.delay(user_id, request.data)
         return Response({
             "id": task.task_id
         }, status=status.HTTP_200_OK)
