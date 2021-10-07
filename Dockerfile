@@ -4,6 +4,8 @@ ENV PYTHONUNBUFFERED 1
 
 EXPOSE 8000
 
+EXPOSE 80
+
 WORKDIR /app
 
 COPY requirements.txt .
