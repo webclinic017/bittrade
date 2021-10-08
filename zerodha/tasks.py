@@ -14,7 +14,7 @@ redis_client = redis.StrictRedis(host='redis_channel')
 @shared_task
 def place_trade(user_id, trade):
     # print(trade)
-    lock = redis_lock.Lock(redis_client, str(user_id), 2)
+    lock = redis_lock.Lock(redis_client, str(user_id))
     lock.acquire()
     token = trade['token']
     if trade['tag'] == 'ENTRY':
