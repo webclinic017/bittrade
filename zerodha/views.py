@@ -1,4 +1,4 @@
-from django.http import HttpResponse
+from django.http import HttpResponseRedirect
 from kiteconnect import KiteConnect
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -21,12 +21,12 @@ from rest_framework import generics
 from zerodha.pagenation import OrdersPagenation
 from zerodha.tasks import place_trade
 from celery.result import AsyncResult
-import datetime
+from django.conf import settings
 # return the request token to the user
 
 
 def zerodha_auth(request):
-    return HttpResponse(request.GET['request_token'])
+    return HttpResponseRedirect(settings.FRONTEND_URL + "/request_token-zerodha/" + request.GET['request_token'])
 
 # get the access token of zerodha api
 

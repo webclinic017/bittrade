@@ -49,7 +49,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'channels',
     'trade_notifier',
-   
+
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
@@ -161,9 +161,7 @@ if DEBUG:
     CORS_ALLOW_ALL_ORIGINS = True
 else:
     CORS_ALLOWED_ORIGINS = [
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-        "http://localhost:19006"
+        "auto-trader-2115.web.app"
     ]
 
 SITE_ID = 1
@@ -187,3 +185,5 @@ REST_FRAMEWORK = {
 }
 
 ACCOUNT_EMAIL_VERIFICATION = "none"
+
+FRONTEND_URL = "https://auto-trader-2115.web.app/"
