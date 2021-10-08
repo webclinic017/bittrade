@@ -19,25 +19,32 @@ def place_trade(user_id, trade):
     lock.acquire()
     token = trade['token']
     if trade['tag'] == 'ENTRY':
-        margins = post(
-            MARGINS_URL,
-            {
-                'Content-Type': 'application/json',
-                'Authorization': f'Token {token}',
-            },
-            json.dumps({
-                'api_key': trade['api_key'],
-                'access_token': trade['access_token']
-            }
-            )).json()
+
+        try:
+            margins = post(
+                MARGINS_URL,
+                {
+                    'Content-Type': 'application/json',
+                    'Authorization': f'Token {token}',
+                },
+                json.dumps({
+                    'api_key': trade['api_key'],
+                    'access_token': trade['access_token']
+                }
+                )).json()
+        except Exception as e:
+            lock.release()
+            raise e
+
         price = trade['ltp'] * trade['quantity']
         # print(margins)
         if price <= margins['equity']['available']['cash'] / 2:
             # make the request
 
             res = make_order_request(trade)
-            lock.release()
+
             if status.is_server_error(res.status_code) or status.is_client_error(res.status_code):
+                lock.release()
                 raise Exception(res.text)
 
             # update the position
