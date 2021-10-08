@@ -11,11 +11,3 @@ services:
     ports:
       - "80:80"
     command: daphne bittrade.asgi:application -b 0.0.0.0 -p 80
-  celery:
-    image: rohit20001221/zerodha_publisher
-    build: .
-    volumes:
-      - .:/app
-    command: "celery -A bittrade worker -l INFO"
-    depends_on:
-      - redis_channel
