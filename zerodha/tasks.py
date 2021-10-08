@@ -20,21 +20,23 @@ def place_trade(user_id, trade):
     token = trade['token']
     if trade['tag'] == 'ENTRY':
 
-        try:
-            margins = post(
-                MARGINS_URL,
-                {
-                    'Content-Type': 'application/json',
-                    'Authorization': f'Token {token}',
-                },
-                json.dumps({
-                    'api_key': trade['api_key'],
-                    'access_token': trade['access_token']
-                }
-                )).json()
-        except Exception as e:
+        margins = post(
+            MARGINS_URL,
+            {
+                'Content-Type': 'application/json',
+                'Authorization': f'Token {token}',
+            },
+            json.dumps({
+                'api_key': trade['api_key'],
+                'access_token': trade['access_token']
+            }
+            ))
+
+        if status.is_client_error(margins.status_code) or status.is_server_error(margins.status_code):
             lock.release()
-            raise e
+            return False
+
+        margins = margins.json()
 
         price = trade['ltp'] * trade['quantity']
         # print(margins)
@@ -45,7 +47,7 @@ def place_trade(user_id, trade):
 
             if status.is_server_error(res.status_code) or status.is_client_error(res.status_code):
                 lock.release()
-                raise Exception(res.text)
+                return False
 
             # update the position
             position = post(
@@ -59,7 +61,7 @@ def place_trade(user_id, trade):
             print(position)
         else:
             lock.release()
-            raise Exception('insufficent margins')
+            return False
 
     elif trade['tag'] == 'EXIT':
         # check for the position
@@ -72,11 +74,16 @@ def place_trade(user_id, trade):
 
         if status.is_client_error(position.status_code) or status.is_server_error(position.status_code):
             lock.release()
-            raise Exception('position not present')
+            return False
 
         position = position.json()
         trade["quantity"] = position["quantity"] if position["quantity"] <= 2000 else 2000
         res = make_order_request(trade)
+
+        if status.is_server_error(res.status_code) or status.is_client_error(res.status_code):
+            lock.release()
+            return False
+
         position = post(
             get_position(trade['instrument_token']),
             {
