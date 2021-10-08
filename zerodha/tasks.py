@@ -5,6 +5,7 @@ import json
 from zerodha.utils import post, get, make_order_request, get_position, BASE_URL
 import redis
 import redis_lock
+from rest_framework import status
 
 MARGINS_URL = BASE_URL + '/margins/'
 
@@ -33,7 +34,12 @@ def place_trade(user_id, trade):
         # print(margins)
         if price <= margins['equity']['available']['cash'] / 2:
             # make the request
+
             res = make_order_request(trade)
+            lock.release()
+            if status.is_server_error(res.status_code) or status.is_client_error(res.status_code):
+                raise Exception(res.text)
+
             # update the position
             position = post(
                 get_position(trade['instrument_token']),
@@ -56,8 +62,10 @@ def place_trade(user_id, trade):
                 "Authorization": f'Token {token}'
             }
         )
-        if position.status_code == 404:
-            return False
+
+        if status.is_client_error(position.status_code) or status.is_server_error(position.status_code):
+            lock.release()
+            raise Exception('position not present')
 
         position = position.json()
         trade["quantity"] = position["quantity"] if position["quantity"] <= 2000 else 2000
