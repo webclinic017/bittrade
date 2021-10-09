@@ -21,7 +21,6 @@ from .views import index
 urlpatterns = [
     path('', include('zerodha.urls')),
     path('users/', include('users.urls')),
-    path('accounts/', include('allauth.urls')),
     path('admin/', admin.site.urls),
     path('api-token-auth/', views.obtain_auth_token),
     path('', index),

@@ -37,10 +37,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.sites',
-    'crispy_forms',
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
     'users',
     'zerodha',
     'django.contrib.staticfiles',
@@ -187,3 +183,5 @@ REST_FRAMEWORK = {
 ACCOUNT_EMAIL_VERIFICATION = "none"
 
 FRONTEND_URL = "https://auto-trader-2115.web.app/"
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
