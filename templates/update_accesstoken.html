@@ -7,10 +7,27 @@
     <title>Update Accesstoken</title>
   </head>
   <body>
-    <form>
+    {% if flag %}
+    <form method="POST">
       {% csrf_token %}
-      <input type="text" placeholder="ACCOUNT ID" />
+      <input required name="userid" value="{{userid}}" />
+      <input required name="api_key" value="{{api_key}}" />
+      <input required name="api_secret" value="{{api_secret}}" />
+      <input required name="request_token" />
+      <button type="submit">submit</button>
+    </form>
+    <br />
+    <br />
+    <a
+      href="https://kite.zerodha.com/connect/login?v=3&api_key={{api_key}}"
+      target="_blank"
+      >login to kite</a
+    >
+    {% else %}
+    <form>
+      <input type="text" name="userid" placeholder="ACCOUNT ID" />
       <button type="submit">update</button>
     </form>
+    {% endif %}
   </body>
 </html>
