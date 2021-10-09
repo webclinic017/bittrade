@@ -3,17 +3,22 @@ version: "3.3"
 services:
   redis_channel:
     image: redis:alpine
+    container_name: "redis_channel"
   publisher:
-    image: rohit20001221/zerodha_publisher
+    image: rohit20001221/bittrade
     build: .
+    container_name: "publisher"
     volumes:
       - .:/app
       - static:/app/static
     command: daphne bittrade.asgi:application -b 0.0.0.0 -p 80
   nginx_server:
+    image: rohit20001221/bittrade_nginx
     build: ./nginx
+    container_name: "nginx_server"
     ports:
       - "80:80"
+      - "443:443"
     volumes:
       - static:/app/static
 
