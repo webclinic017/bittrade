@@ -8,6 +8,14 @@ services:
     build: .
     volumes:
       - .:/app
+      - static:/app/static
+    command: daphne bittrade.asgi:application -b 0.0.0.0 -p 80
+  nginx_server:
+    build: ./nginx
     ports:
       - "80:80"
-    command: daphne bittrade.asgi:application -b 0.0.0.0 -p 80
+    volumes:
+      - static:/app/static
+
+volumes:
+  static:
