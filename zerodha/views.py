@@ -19,8 +19,6 @@ from zerodha.models import MarketOrder, LimitOrder, Position
 from zerodha.serializers import MarketOrderSerializer, LimitOrderSerializer, PositionSerializer
 from rest_framework import generics
 from zerodha.pagenation import OrdersPagenation
-from zerodha.tasks import place_trade
-from celery.result import AsyncResult
 from django.conf import settings
 # return the request token to the user
 
@@ -373,24 +371,3 @@ class PositionDetailAPI(APIView):
                 position.save()
 
         return Response(status=status.HTTP_200_OK)
-
-
-class EnqueueTrade(APIView):
-
-    permission_classes = [IsAuthenticated, ]
-
-    def post(self, request):
-        user_id = request.user.id
-        task = place_trade.delay(user_id, request.data)
-        return Response({
-            "id": task.task_id
-        }, status=status.HTTP_200_OK)
-
-
-class TradeTaskStatus(APIView):
-
-    permission_classes = [IsAuthenticated, ]
-
-    def get(self, request, id):
-        task = AsyncResult(id)
-        return Response({'status': task.state, 'message': str(task.result)}, status=status.HTTP_200_OK)

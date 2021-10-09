@@ -16,6 +16,4 @@ urlpatterns = [
     path('margins/', views.MarginsAPI.as_view()),
     path('positions', views.PositionsListAPI.as_view()),
     path('position/<str:token>', views.PositionDetailAPI.as_view()),
-    path('enque', views.EnqueueTrade.as_view()),
-    path('task/<str:id>/status', views.TradeTaskStatus.as_view())
 ]
