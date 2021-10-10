@@ -1,8 +1,10 @@
 git pull
 
-docker stack rm bittrade
-
-docker-compose down --rmi all -v
+docker stack rm $(docker stack ls)
+docker rmi $(docker images -a -q)
+docker container prune
+docker image prune
+docker volume prune
 
 sleep 5
 
