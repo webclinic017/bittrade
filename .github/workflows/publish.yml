@@ -44,13 +44,3 @@ jobs:
 
       - name: Image digest
         run: echo ${{ steps.docker_build_nginx.outputs.digest }}
-
-      - name: Deploy the code to digitalocean
-        id: digital_ocean_deploy
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.DIGITAL_OCEAN_HOST }}
-          USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
-          PORT: ${{ secrets.DIGITAL_OCEAN_PORT }}
-          KEY: ${{ secrets.DIGITAL_OCEAN_PRIVATE_KEY }}
-          script: sh /home/rohit/bittrade/deploy.sh
