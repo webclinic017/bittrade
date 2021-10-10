@@ -39,7 +39,7 @@ def update_accesstoken(request):
         access_token = kite.generate_session(
             request.POST['request_token'],
             api_secret
-        )
+        )['access_token']
         collection.update_one({'ZERODHA ID': request.POST['userid']}, {
                               "$set": {"ACCESS TOKEN": access_token}})
         mongo_clients.close()
