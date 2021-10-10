@@ -1,13 +1,13 @@
 git pull
 
-docker stack rm $(docker stack ls)
-docker rmi $(docker images -a -q)
-docker container prune
-docker image prune
-docker volume prune
+docker stack rm bittrade
+
+docker rm -vf $(docker ps -a -q)
+
+docker rmi -f $(docker images -a -q)
 
 sleep 5
 
-docker stack deploy -c docker-compose.yml publisher
+docker stack deploy -c docker-compose.yml bittrade
 
 
