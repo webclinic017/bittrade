@@ -45,7 +45,7 @@ jobs:
       - name: Image digest
         run: echo ${{ steps.docker_build_nginx.outputs.digest }}
 
-      - name: Deploy the code
+      - name: Deploy the code to digitalocean
         id: digital_ocean_deploy
         uses: appleboy/ssh-action@master
         with:
