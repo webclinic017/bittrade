@@ -49,6 +49,6 @@ jobs:
         id: digital_ocean_deploy
         uses: JimCronqvist/action-ssh@master
         with:
-          hosts: ${{ secrets.DOCKER_HUB_USERNAME }}@${{ secrets.DIGITAL_OCEAN_HOST }}
+          hosts: ${{ secrets.DOCKER_HUB_USERNAME }}@${{ secrets.DIGITAL_OCEAN_HOST }}:${{ DIGITAL_OCEAN_PORT }}
           privateKey: ${{ secrets.DIGITAL_OCEAN_PRIVATE_KEY }}
           command: sh /home/rohit/bittrade/deploy.sh
