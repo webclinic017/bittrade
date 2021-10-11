@@ -1,2 +1,4 @@
 kiteconnect
 redis
+pymongo
+dnspython
