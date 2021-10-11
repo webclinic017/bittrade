@@ -5,7 +5,7 @@ import os
 import time
 
 os.environ['TZ'] = 'Asia/Kolkata'
-time.tzset(())
+time.tzset()
 
 mongo_clients = MongoClient(
     "mongodb+srv://jag:rtut12#$@cluster0.alwvk.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
