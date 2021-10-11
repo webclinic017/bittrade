@@ -21,8 +21,7 @@ services:
       - "443:443"
     volumes:
       - static:/app/static
-      - letsencrypt:/etc/letsencrypt
-      - certbot:/var/www/certbot
+      - /etc/letsencrypt:/etc/letsencrypt
     depends_on:
       - publisher
   zerodah_liveprice:
@@ -34,5 +33,3 @@ services:
 
 volumes:
   static:
-  letsencrypt:
-  certbot:
