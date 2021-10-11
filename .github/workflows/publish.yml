@@ -49,7 +49,7 @@ jobs:
           context: ./workers/liveprice
           file: ./workers/liveprice/Dockerfile
           push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/bittrade_nginx:latest
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/zerodha_liveprice:latest
 
       - name: Image digest
         run: echo ${{ steps.docker_build_nginx.outputs.digest }}
