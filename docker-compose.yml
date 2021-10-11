@@ -25,6 +25,8 @@ services:
     image: rohit20001221/zerodha_liveprive
     build: ./workers/liveprice
     container_name: "zerodha_liveprice"
+    depends_on:
+      - nginx_server
 
 volumes:
   static:
