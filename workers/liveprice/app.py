@@ -17,6 +17,8 @@ api_key, access_token = get_key_token(
     zerodha_id, mongo_clients["client_details"]["clients"]
 )
 
+print("Starting the live data worker")
+
 host = "redis_channel"
 tokens = [738561, 5633]
 

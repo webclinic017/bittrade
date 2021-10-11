@@ -33,7 +33,7 @@ class RedisKiteTicker:
 
     def exitService(self):
         while True:
-            if datetime.datetime.now().time() >= datetime.time(4, 0):
+            if datetime.datetime.now().time() >= datetime.time(9, 0):
                 exit(0)
             time.sleep(5)
 
