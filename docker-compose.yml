@@ -22,7 +22,7 @@ services:
     volumes:
       - static:/app/static
   zerodah_liveprice:
-    image: rohit20001221/zerodha_liveprive
+    image: rohit20001221/zerodha_liveprice
     build: ./workers/liveprice
     container_name: "zerodha_liveprice"
     depends_on:
