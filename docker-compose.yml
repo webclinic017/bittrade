@@ -21,6 +21,8 @@ services:
       - "443:443"
     volumes:
       - static:/app/static
+    depends_on:
+      - publisher
   zerodah_liveprice:
     image: rohit20001221/zerodha_liveprice
     build: ./workers/liveprice
