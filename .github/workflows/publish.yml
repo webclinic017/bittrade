@@ -42,5 +42,14 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/bittrade_nginx:latest
 
+      - name: Build and push zerodha live
+        id: docker_build_zerodha_live
+        uses: docker/build-push-action@v2
+        with:
+          context: ./workers/liveprice
+          file: ./workers/liveprice/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/bittrade_nginx:latest
+
       - name: Image digest
         run: echo ${{ steps.docker_build_nginx.outputs.digest }}
