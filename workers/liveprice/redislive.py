@@ -24,7 +24,8 @@ class RedisKiteTicker:
 
             for tick in ticks:
                 print(tick)
-                self.db.set(str(tick['instrument_token']), json.dumps(tick))
+                self.db.set(str(tick['instrument_token']),
+                            json.dumps(tick, default=str))
 
         self.kws.on_connect = on_connect
         self.kws.on_ticks = on_ticks
