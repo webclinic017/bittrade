@@ -23,7 +23,7 @@ class RedisKiteTicker:
         def on_ticks(ws, ticks):
 
             for tick in ticks:
-                print(tick)
+                # print(tick)
                 self.db.set(str(tick['instrument_token']),
                             json.dumps(tick, default=str))
 
