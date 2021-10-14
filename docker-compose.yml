@@ -24,12 +24,6 @@ services:
       - /etc/letsencrypt:/etc/letsencrypt
     depends_on:
       - publisher
-  zerodah_liveprice:
-    image: rohit20001221/zerodha_liveprice
-    build: ./workers/liveprice
-    container_name: "zerodha_liveprice"
-    depends_on:
-      - nginx_server
 
 volumes:
   static:

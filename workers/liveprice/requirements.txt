@@ -1,4 +1,0 @@
-kiteconnect
-redis
-pymongo
-dnspython
