@@ -70,7 +70,7 @@ class UserData(AsyncWebsocketConsumer):
             kite = KiteConnect(
                 api_key=data["api_key"], access_token=data["access_token"])
             positions = await self.getPositions(kite)
-            pnl = self.getPnl(positions)
+            pnl = await self.getPnl(positions)
 
             data_ = {
                 "positions": positions,
