@@ -77,6 +77,12 @@ class MarketOrderBuy(APIView):
                 raise Exception('enter a valid exchange, NSE or NFO')
 
             try:
+
+                # check the margins and then enter
+                margins = kite_.margins()
+                if data["ltp"]*data["quantity"] > margins["equity"]["available"]["live_balance"]:
+                    raise Exception("insufficent margins")
+
                 order_id = market_buy_order(
                     kite_, data['trading_symbol'], exchange, data['quantity'])
                 validate_order(order_id, kite_)
@@ -120,8 +126,29 @@ class MarketOrderSell(APIView):
                 raise Exception('enter a valid exchange, NSE or NFO')
 
             try:
+
+                # check for the positions and also holdings
+                positions = kite_.positions()["net"]
+                holdings = kite_.holdings()
+
+                flag = False
+                quantity = 0
+
+                for holding in holdings:
+                    if holding["tradingsymbol"] == data["trading_symbol"] and holding["quantity"] > 0:
+                        flag = True
+                        quantity = holding["quantity"]
+
+                for position in positions:
+                    if position["tradingsymbol"] == data["trading_symbol"] and position["quantity"] > 0:
+                        flag = True
+                        quantity = position["quantity"]
+
+                if not(flag):
+                    raise Exception("position not found for sell")
+
                 order_id = market_sell_order(
-                    kite_, data['trading_symbol'], exchange, data['quantity'])
+                    kite_, data['trading_symbol'], exchange, quantity)
                 validate_order(order_id, kite_)
 
                 # create a market order row in the database
@@ -129,7 +156,7 @@ class MarketOrderSell(APIView):
                     user=request.user,
                     trading_symbol=data['trading_symbol'],
                     exchange=data['exchange'],
-                    quantity=data['quantity'],
+                    quantity=quantity,
                     action='SELL'
                 )
 
@@ -167,6 +194,12 @@ class LimitOrderBuy(APIView):
                 raise Exception('enter a valid exchange, NSE or NFO')
 
             try:
+
+                # check the margins and then enter
+                margins = kite_.margins()
+                if data["price"]*data["quantity"] > margins["equity"]["available"]["live_balance"]:
+                    raise Exception("insufficent margins")
+
                 order_id = limit_buy_order(
                     kite_, data['trading_symbol'], exchange, data['quantity'], data['price'])
                 validate_order(order_id, kite_)
@@ -213,8 +246,28 @@ class LimitOrderSell(APIView):
                 raise Exception('enter a valid exchange, NSE or NFO')
 
             try:
+                # check for the positions and also holdings
+                positions = kite_.positions()["net"]
+                holdings = kite_.holdings()
+
+                flag = False
+                quantity = 0
+
+                for holding in holdings:
+                    if holding["tradingsymbol"] == data["trading_symbol"] and holding["quantity"] > 0:
+                        flag = True
+                        quantity = holding["quantity"]
+
+                for position in positions:
+                    if position["tradingsymbol"] == data["trading_symbol"] and position["quantity"] > 0:
+                        flag = True
+                        quantity = position["quantity"]
+
+                if not(flag):
+                    raise Exception("position not found for sell")
+
                 order_id = limit_sell_order(
-                    kite_, data['trading_symbol'], exchange, data['quantity'], data['price'])
+                    kite_, data['trading_symbol'], exchange, quantity, data['price'])
                 validate_order(order_id, kite_)
 
                 # create limit order object
@@ -222,7 +275,7 @@ class LimitOrderSell(APIView):
                     user=request.user,
                     trading_symbol=data['trading_symbol'],
                     exchange=data['exchange'],
-                    quantity=data['quantity'],
+                    quantity=quantity,
                     price=data['price'],
                     action='SELL'
                 )
@@ -318,7 +371,6 @@ class PositionDetailAPI(APIView):
 
     # reterive a particular api
     def get(self, request, token):
-
         if request.user.positions.filter(instrument_token=token).exists():
             serializer = self.serializer(
                 request.user.positions.get(instrument_token=token))
@@ -329,30 +381,24 @@ class PositionDetailAPI(APIView):
     # create or update the position of the user
 
     def post(self, request, token):
-
         # check if the position with the given token exist
         if request.user.positions.filter(instrument_token=token).exists():
             # the position exist
             position = request.user.positions.get(instrument_token=token)
-
             # check if the request is about entry or exit
             if request.data['tag'] == 'ENTRY':
                 position.quantity += request.data['quantity']
             else:
                 position.quantity -= request.data['quantity']
-
             # price field is only updated for the limit orders
             position.price = request.data.get('price', None)
-
             # average entry price
             position.entry_price += request.data['entry_price']
             position.entry_price /= 2
-
             if position.quantity <= 0:
                 position.delete()
             else:
                 position.save()
-
         else:
             # the position dosent exist create the position
             if request.data['tag'] == 'ENTRY':
@@ -367,7 +413,6 @@ class PositionDetailAPI(APIView):
                     trading_symbol=request.data['trading_symbol'],
                     uri=request.data['uri']
                 )
-
                 position.save()
 
         return Response(status=status.HTTP_200_OK)
