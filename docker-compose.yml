@@ -8,6 +8,8 @@ services:
     image: rohit20001221/bittrade
     build: .
     container_name: "publisher"
+    environment:
+      - REDIS_CHANNEL=redis_channel
     volumes:
       - .:/app
       - static:/app/static
