@@ -168,7 +168,7 @@ class OrderConsumer(AsyncJsonWebsocketConsumer):
                     if err != None:
                         await self.send_json({"error": str(err)})
                     else:
-                        await self.send_json({"orderid": orderid})
+                        await self.send_json({"orderid": orderid, "type": "BUY"})
                         self.margins = await self.getMargins(kite)
                 else:
                     await self.send_json({"error": "insufficent margins"})
@@ -192,5 +192,5 @@ class OrderConsumer(AsyncJsonWebsocketConsumer):
                     if err != None:
                         await self.send_json({"error": str(err)})
                     else:
-                        await self.send_json({"orderid": orderid})
+                        await self.send_json({"orderid": orderid, "type": "SELL"})
                         self.positions = await self.getPositions(kite)
