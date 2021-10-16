@@ -1,6 +1,7 @@
 from channels.generic.websocket import AsyncWebsocketConsumer, AsyncJsonWebsocketConsumer
 import json
 from kiteconnect import KiteConnect
+from trade_notifier.rdb import db
 
 from trade_notifier.functions import (
     market_buy_order,
@@ -52,6 +53,11 @@ class UserData(AsyncWebsocketConsumer):
 
     async def connect(self):
         await self.accept()
+        self.counter = 0
+        self.key = ''
+
+    async def disconnect(self, code):
+        db.delete(self.key)
 
     async def getPositions(self, kite: KiteConnect):
         try:
@@ -69,20 +75,37 @@ class UserData(AsyncWebsocketConsumer):
             sum += pnl
         return {"pnl": sum}
 
+    async def getMargins(self, kite: KiteConnect):
+        try:
+            return kite.margins()
+        except Exception as e:
+            return {"error": str(e)}
+
     async def receive(self, text_data):
         data = json.loads(text_data)
         if "api_key" in data and "access_token" in data:
-            kite = KiteConnect(
-                api_key=data["api_key"], access_token=data["access_token"])
-            positions = await self.getPositions(kite)
-            pnl = await self.getPnl(positions)
+            self.key = data["api_key"]
+            data_ = db.get(data['api_key'])
 
-            data_ = {
-                "positions": positions,
-                "pnl": pnl
-            }
+            if data_ == None or self.counter % 6 == 0:
+                kite = KiteConnect(
+                    api_key=data["api_key"], access_token=data["access_token"])
+                positions = await self.getPositions(kite)
+                pnl = await self.getPnl(positions)
+                margins = await self.getMargins(kite)
 
-            await self.send(text_data=json.dumps(data_))
+                data_ = {
+                    "positions": positions,
+                    "pnl": pnl,
+                    "margins": margins
+                }
+
+                db.set(data["api_key"], json.dumps(data_))
+                await self.send(text_data=json.dumps(data_))
+            else:
+                await self.send(text_data=data_.decode())
+
+            self.counter += 1
 
 
 class OrderConsumer(AsyncJsonWebsocketConsumer):
@@ -90,6 +113,7 @@ class OrderConsumer(AsyncJsonWebsocketConsumer):
     async def connect(self):
         self.positions = None
         self.margins = None
+        self.key = ""
 
         self.endpoints = {
             '/place/market_order/buy': market_buy_order,
@@ -106,6 +130,15 @@ class OrderConsumer(AsyncJsonWebsocketConsumer):
         }
 
         await self.accept()
+
+    async def getPnl(self, positions):
+        sum = 0
+        if "error" in positions:
+            return positions
+        for pos in positions['net']:
+            pnl = pos['pnl']
+            sum += pnl
+        return {"pnl": sum}
 
     async def getPositions(self, kite: KiteConnect):
         try:
@@ -147,7 +180,7 @@ class OrderConsumer(AsyncJsonWebsocketConsumer):
                 "error": "invalid api_key or access_token"
             })
         else:
-
+            self.key = data["api_key"]
             kite = KiteConnect(data["api_key"], data["access_token"])
             flag = True
 
@@ -194,3 +227,14 @@ class OrderConsumer(AsyncJsonWebsocketConsumer):
                     else:
                         await self.send_json({"orderid": orderid, "type": "SELL"})
                         self.positions = await self.getPositions(kite)
+
+            pnl = await self.getPnl(self.positions)
+            data_ = {
+                "positions": self.positions,
+                "margins": self.margins,
+                "pnl": pnl
+            }
+            db.set(data["api_key"], json.dumps(data_))
+
+    async def disconnect(self, code):
+        db.delete(self.key)

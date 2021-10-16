@@ -8,3 +8,4 @@ psycopg2-binary>=2.8
 Twisted[tls,http2]
 pymongo
 dnspython
+redis
