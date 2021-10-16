@@ -46,7 +46,8 @@ class UserData(AsyncWebsocketConsumer):
 
     async def getPositions(self, kite: KiteConnect):
         try:
-            return kite.positions()
+            positions = kite.positions()
+            return positions
         except Exception as e:
             return {'error': str(e)}
 

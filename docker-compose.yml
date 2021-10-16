@@ -8,12 +8,13 @@ services:
     image: rohit20001221/bittrade
     build: .
     container_name: "publisher"
-    env_file:
-      - docker.env
     volumes:
       - .:/app
       - static:/app/static
     command: daphne bittrade.asgi:application -b 0.0.0.0 -p 80
+    # command: python manage.py runserver 0.0.0.0:80
+    depends_on:
+      - redis_channel
   nginx_server:
     image: rohit20001221/bittrade_nginx
     build: ./nginx

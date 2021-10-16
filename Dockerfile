@@ -2,6 +2,8 @@ FROM python:3.8-slim-buster
 
 ENV PYTHONUNBUFFERED 1
 
+ENV REDIS_CHANNEL=redis_channel
+
 EXPOSE 8000
 
 EXPOSE 80
