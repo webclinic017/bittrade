@@ -1,6 +1,15 @@
-from channels.generic.websocket import AsyncWebsocketConsumer
+from channels.generic.websocket import AsyncWebsocketConsumer, AsyncJsonWebsocketConsumer
 import json
 from kiteconnect import KiteConnect
+
+from trade_notifier.functions import (
+    market_buy_order,
+    market_sell_order,
+    limit_buy_order,
+    limit_sell_order,
+    validate_limit_api,
+    validate_market_api,
+)
 
 
 class Notifier(AsyncWebsocketConsumer):
@@ -52,21 +61,16 @@ class UserData(AsyncWebsocketConsumer):
             return {'error': str(e)}
 
     async def getPnl(self, positions):
-
         sum = 0
         if "error" in positions:
             return positions
-
         for pos in positions['net']:
             pnl = pos['pnl']
             sum += pnl
-
         return {"pnl": sum}
 
     async def receive(self, text_data):
-
         data = json.loads(text_data)
-
         if "api_key" in data and "access_token" in data:
             kite = KiteConnect(
                 api_key=data["api_key"], access_token=data["access_token"])
@@ -79,3 +83,114 @@ class UserData(AsyncWebsocketConsumer):
             }
 
             await self.send(text_data=json.dumps(data_))
+
+
+class OrderConsumer(AsyncJsonWebsocketConsumer):
+
+    async def connect(self):
+        self.positions = None
+        self.margins = None
+
+        self.endpoints = {
+            '/place/market_order/buy': market_buy_order,
+            '/place/market_order/sell': market_sell_order,
+            '/place/limit_order/buy': limit_buy_order,
+            '/place/limit_order/sell': limit_sell_order
+        }
+
+        self.validators = {
+            '/place/market_order/buy': validate_market_api,
+            '/place/market_order/sell': validate_market_api,
+            '/place/limit_order/buy': validate_limit_api,
+            '/place/limit_order/sell': validate_limit_api
+        }
+
+        await self.accept()
+
+    async def getPositions(self, kite: KiteConnect):
+        try:
+            return kite.positions()
+        except Exception as e:
+            return {"error": str(e)}
+
+    async def getMargins(self, kite: KiteConnect):
+        try:
+            return kite.margins()
+        except Exception as e:
+            return {"error": str(e)}
+
+    async def perform_action(self, endpoint, data):
+        err = None
+        orderid = None
+        kite = self.validators[endpoint](data)
+        if 'limit' in endpoint:
+            try:
+                orderid = self.endpoints[endpoint](
+                    kite, data['trading_symbol'], data['exchange'], data['quantity'], data['price'])
+            except Exception as e:
+                err = e
+        else:
+            try:
+                orderid = self.endpoints[endpoint](
+                    kite, data['trading_symbol'], data['exchange'], data['quantity'])
+            except Exception as e:
+                err = e
+        return orderid, err
+
+    async def receive(self, text_data=None):
+
+        # load the json data from the raw text data
+        data = json.loads(text_data)
+
+        if "api_key" not in data or "access_token" not in data:
+            await self.send_json({
+                "error": "invalid api_key or access_token"
+            })
+        else:
+
+            kite = KiteConnect(data["api_key"], data["access_token"])
+            flag = True
+
+            if self.positions == None or self.margins == None or "error" in self.positions or "error" in self.margins:
+                self.positions = await self.getPositions(kite)
+                self.margins = await self.getMargins(kite)
+
+                if "error" in self.positions or "error" in self.positions:
+                    flag = False
+                    await self.send_json({"error": {"positions": self.positions, "margins": self.margins}})
+
+            if data['tag'] == 'ENTRY' and flag:
+                # check the margins and then enter
+                price = data["price"] * data["quantity"]
+                if price < self.margins["equity"]["available"]["live_balance"]:
+                    # place the order
+                    orderid, err = await self.perform_action(data['endpoint'], data)
+                    if err != None:
+                        await self.send_json({"error": str(err)})
+                    else:
+                        await self.send_json({"orderid": orderid})
+                        self.margins = await self.getMargins(kite)
+                else:
+                    await self.send_json({"error": "insufficent margins"})
+
+            if data['tag'] == 'EXIT' and flag:
+                # check the positions and then exit
+                position = None
+
+                # print(text_data)
+
+                for i in range(len(self.positions["net"])):
+                    if self.positions["net"][i]['tradingsymbol'] == data['trading_symbol'] and self.positions["net"][i]['quantity'] > 0:
+                        position = self.positions["net"][i]
+
+                if position == None:
+                    await self.send_json({"error": "position not present"})
+                else:
+                    # place the exit order
+                    data["quantity"] = position["quantity"]
+                    orderid, err = await self.perform_action(data['endpoint'], data)
+                    if err != None:
+                        await self.send_json({"error": str(err)})
+                    else:
+                        await self.send_json({"orderid": orderid})
+                        self.positions = await self.getPositions(kite)
