@@ -155,7 +155,12 @@ class OrderConsumer(AsyncJsonWebsocketConsumer):
     async def perform_action(self, endpoint, data):
         err = None
         orderid = None
-        kite = self.validators[endpoint](data)
+
+        try:
+            kite = self.validators[endpoint](data)
+        except AssertionError as e:
+            return orderid, e
+
         if 'limit' in endpoint:
             try:
                 orderid = self.endpoints[endpoint](
