@@ -82,8 +82,10 @@ class UserData(AsyncWebsocketConsumer):
             return {"error": str(e)}
 
     async def receive(self, text_data):
+        print(text_data)
+
         data = json.loads(text_data)
-        if "api_key" in data and "access_token" in data:
+        if "api_key" in data and "access_token" in data and (data["api_key"] != None or data["access_token"] != None):
             self.key = data["api_key"]
             data_ = db.get(data['api_key'])
 
@@ -175,7 +177,7 @@ class OrderConsumer(AsyncJsonWebsocketConsumer):
         # load the json data from the raw text data
         data = json.loads(text_data)
 
-        if "api_key" not in data or "access_token" not in data:
+        if "api_key" not in data or "access_token" not in data or data["api_key"] == None or data["access_token"] == None:
             await self.send_json({
                 "error": "invalid api_key or access_token"
             })
