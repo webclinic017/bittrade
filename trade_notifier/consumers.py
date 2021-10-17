@@ -82,8 +82,6 @@ class UserData(AsyncWebsocketConsumer):
             return {"error": str(e)}
 
     async def receive(self, text_data):
-        print(text_data)
-
         data = json.loads(text_data)
         if "api_key" in data and "access_token" in data and (data["api_key"] != None or data["access_token"] != None):
             self.key = data["api_key"]
