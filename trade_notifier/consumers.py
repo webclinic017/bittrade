@@ -87,7 +87,7 @@ class UserData(AsyncWebsocketConsumer):
             self.key = data["api_key"]
             data_ = db.get(data['api_key'])
 
-            if data_ == None or self.counter % 6 == 0:
+            if data_ == None or self.counter % 20 == 0:
                 kite = KiteConnect(
                     api_key=data["api_key"], access_token=data["access_token"])
                 positions = await self.getPositions(kite)
