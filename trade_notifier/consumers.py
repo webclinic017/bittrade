@@ -189,13 +189,12 @@ class OrderConsumer(AsyncJsonWebsocketConsumer):
             kite = KiteConnect(data["api_key"], data["access_token"])
             flag = True
 
-            if self.positions == None or self.margins == None or "error" in self.positions or "error" in self.margins:
-                self.positions = await self.getPositions(kite)
-                self.margins = await self.getMargins(kite)
+            self.positions = await self.getPositions(kite)
+            self.margins = await self.getMargins(kite)
 
-                if "error" in self.positions or "error" in self.positions:
-                    flag = False
-                    await self.send_json({"error": {"positions": self.positions, "margins": self.margins}})
+            if "error" in self.positions or "error" in self.positions:
+                flag = False
+                await self.send_json({"error": {"positions": self.positions, "margins": self.margins}})
 
             if data['tag'] == 'ENTRY' and flag:
                 # check the margins and then enter
@@ -208,6 +207,7 @@ class OrderConsumer(AsyncJsonWebsocketConsumer):
                     else:
                         await self.send_json({"orderid": orderid, "type": "BUY"})
                         self.margins = await self.getMargins(kite)
+                        self.positions = await self.getPositions(kite)
                 else:
                     await self.send_json({"error": "insufficent margins"})
 
@@ -232,6 +232,7 @@ class OrderConsumer(AsyncJsonWebsocketConsumer):
                     else:
                         await self.send_json({"orderid": orderid, "type": "SELL"})
                         self.positions = await self.getPositions(kite)
+                        self.margins = await self.getMargins(kite)
 
             pnl = await self.getPnl(self.positions)
             data_ = {
