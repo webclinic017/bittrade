@@ -189,8 +189,9 @@ class OrderConsumer(AsyncJsonWebsocketConsumer):
             kite = KiteConnect(data["api_key"], data["access_token"])
             flag = True
 
-            self.positions = await self.getPositions(kite)
-            self.margins = await self.getMargins(kite)
+            if self.positions == None or self.margins == None or 'error' in self.positions or 'error' in self.positions:
+                self.positions = await self.getPositions(kite)
+                self.margins = await self.getMargins(kite)
 
             if "error" in self.positions or "error" in self.positions:
                 flag = False
@@ -214,25 +215,28 @@ class OrderConsumer(AsyncJsonWebsocketConsumer):
             if data['tag'] == 'EXIT' and flag:
                 # check the positions and then exit
                 position = None
-
                 # print(text_data)
-
                 for i in range(len(self.positions["net"])):
-                    if self.positions["net"][i]['tradingsymbol'] == data['trading_symbol'] and self.positions["net"][i]['quantity'] > 0:
+                    if self.positions["net"][i]['tradingsymbol'] == data['trading_symbol']:
                         position = self.positions["net"][i]
 
                 if position == None:
                     await self.send_json({"error": "position not present"})
                 else:
-                    # place the exit order
-                    data["quantity"] = position["quantity"]
-                    orderid, err = await self.perform_action(data['endpoint'], data)
-                    if err != None:
-                        await self.send_json({"error": str(err)})
+                    self.positions = await self.getPositions(kite)
+
+                    if self.positions["net"][i]['quantity'] > 0:
+                        # place the exit order
+                        data["quantity"] = position["quantity"]
+                        orderid, err = await self.perform_action(data['endpoint'], data)
+                        if err != None:
+                            await self.send_json({"error": str(err)})
+                        else:
+                            await self.send_json({"orderid": orderid, "type": "SELL"})
+                            self.positions = await self.getPositions(kite)
+                            self.margins = await self.getMargins(kite)
                     else:
-                        await self.send_json({"orderid": orderid, "type": "SELL"})
-                        self.positions = await self.getPositions(kite)
-                        self.margins = await self.getMargins(kite)
+                        await self.send_json({"error": "position quantity must be greater than zero"})
 
             pnl = await self.getPnl(self.positions)
             data_ = {
