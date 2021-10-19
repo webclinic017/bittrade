@@ -214,7 +214,7 @@ class OrderConsumer(AsyncJsonWebsocketConsumer):
 
             if data['tag'] == 'EXIT' and flag:
                 # check the positions and then exit
-                position = None, idx = -1
+                position, idx = None, -1
                 # print(text_data)
                 for i in range(len(self.positions["net"])):
                     if self.positions["net"][i]['tradingsymbol'] == data['trading_symbol']:
