@@ -183,5 +183,6 @@ REST_FRAMEWORK = {
 ACCOUNT_EMAIL_VERIFICATION = "none"
 
 FRONTEND_URL = "https://auto-trader-2115.web.app/"
+# FRONTEND_URL = "http://localhost:3000"
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')

@@ -214,18 +214,19 @@ class OrderConsumer(AsyncJsonWebsocketConsumer):
 
             if data['tag'] == 'EXIT' and flag:
                 # check the positions and then exit
-                position = None
+                position = None, idx = -1
                 # print(text_data)
                 for i in range(len(self.positions["net"])):
                     if self.positions["net"][i]['tradingsymbol'] == data['trading_symbol']:
                         position = self.positions["net"][i]
+                        idx = i
 
                 if position == None:
                     await self.send_json({"error": "position not present"})
                 else:
                     self.positions = await self.getPositions(kite)
 
-                    if self.positions["net"][i]['quantity'] > 0:
+                    if self.positions["net"][idx]['quantity'] > 0:
                         # place the exit order
                         data["quantity"] = position["quantity"]
                         orderid, err = await self.perform_action(data['endpoint'], data)
