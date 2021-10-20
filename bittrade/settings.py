@@ -157,7 +157,7 @@ if DEBUG:
     CORS_ALLOW_ALL_ORIGINS = True
 else:
     CORS_ALLOWED_ORIGINS = [
-        "auto-trader-2115.web.app"
+        "*.web.app"
     ]
 
 SITE_ID = 1
