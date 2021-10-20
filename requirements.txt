@@ -9,3 +9,5 @@ Twisted[tls,http2]
 pymongo
 dnspython
 redis
+cryptography
+jwt
