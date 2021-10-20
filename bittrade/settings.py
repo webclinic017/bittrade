@@ -153,12 +153,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-if DEBUG:
-    CORS_ALLOW_ALL_ORIGINS = True
-else:
-    CORS_ALLOWED_ORIGINS = [
-        "*.web.app"
-    ]
+CORS_ALLOW_ALL_ORIGINS = True
 
 SITE_ID = 1
 
