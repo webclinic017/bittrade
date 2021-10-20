@@ -23,7 +23,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'ij5*+&u7-mzr7v#@q(-ux=fzmvl^2m_y@@kzci!%k(@(-&^1&0'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = bool(int(os.environ['DEBUG']))
 
 ALLOWED_HOSTS = ['*']
 
@@ -182,7 +182,10 @@ REST_FRAMEWORK = {
 
 ACCOUNT_EMAIL_VERIFICATION = "none"
 
-FRONTEND_URL = "https://auto-trader-2115.web.app/"
-# FRONTEND_URL = "http://localhost:3000"
+if DEBUG:
+    FRONTEND_URL = "http://localhost:3000"
+else:
+    FRONTEND_URL = "https://auto-trader-2115.web.app/"
+
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
