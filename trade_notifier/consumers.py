@@ -85,11 +85,11 @@ class UserData(AsyncWebsocketConsumer):
         data = json.loads(text_data)
         if "api_key" in data and "access_token" in data and (data["api_key"] != None or data["access_token"] != None):
             self.key = data["api_key"]
-            data_ = json.loads(db.get(data['api_key']))
+            data_ = db.get(data['api_key'])
 
             flag = False
 
-            if 'error' in data_["positions"]:
+            if data_ != None and 'error' in json.loads(data_)["positions"]:
                 flag = True
 
             if data_ == None or self.counter % 20 == 0 or flag:
