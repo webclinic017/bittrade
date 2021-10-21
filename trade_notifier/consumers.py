@@ -1,7 +1,7 @@
 from channels.generic.websocket import AsyncWebsocketConsumer, AsyncJsonWebsocketConsumer
 import json
 from kiteconnect import KiteConnect
-from trade_notifier.rdb import db
+from trade_notifier.utils import db
 
 from trade_notifier.functions import (
     market_buy_order,
@@ -85,9 +85,14 @@ class UserData(AsyncWebsocketConsumer):
         data = json.loads(text_data)
         if "api_key" in data and "access_token" in data and (data["api_key"] != None or data["access_token"] != None):
             self.key = data["api_key"]
-            data_ = db.get(data['api_key'])
+            data_ = json.loads(db.get(data['api_key']))
 
-            if data_ == None or self.counter % 20 == 0:
+            flag = False
+
+            if 'error' in data_["positions"]:
+                flag = True
+
+            if data_ == None or self.counter % 20 == 0 or flag:
                 kite = KiteConnect(
                     api_key=data["api_key"], access_token=data["access_token"])
                 positions = await self.getPositions(kite)
@@ -102,10 +107,12 @@ class UserData(AsyncWebsocketConsumer):
 
                 db.set(data["api_key"], json.dumps(data_))
                 await self.send(text_data=json.dumps(data_))
-            else:
-                await self.send(text_data=data_.decode())
+                self.counter += 1
+                return
 
+            await self.send(text_data=json.dumps(data_))
             self.counter += 1
+            return
 
 
 class OrderConsumer(AsyncJsonWebsocketConsumer):

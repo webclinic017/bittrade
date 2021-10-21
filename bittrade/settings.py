@@ -45,7 +45,6 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'channels',
     'trade_notifier',
-
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
