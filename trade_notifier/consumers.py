@@ -110,7 +110,7 @@ class UserData(AsyncWebsocketConsumer):
                 self.counter += 1
                 return
 
-            await self.send(text_data=json.dumps(data_))
+            await self.send(text_data=data_.decode())
             self.counter += 1
             return
 
