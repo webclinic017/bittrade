@@ -49,6 +49,10 @@ class TradeNotifier(Notifier):
     group_name = 'indian'
 
 
+class InternationNotifier(Notifier):
+    group_name = "international"
+
+
 class UserData(AsyncWebsocketConsumer):
 
     async def connect(self):
