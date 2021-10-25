@@ -217,26 +217,32 @@ class OrderConsumer(AsyncJsonWebsocketConsumer):
                 self.margins = await self.getMargins(kite)
 
                 # get the quotes for all the ticker
-                try:
-                    quotes = await self.getQuotes(kite, list(map(lambda x: x['exchange'] + ':' + x['tradingsymbol'], self.positions['net'])))
-                except:
+                tickers = list(
+                    map(lambda x: x['exchange'] + ':' + x['tradingsymbol'], self.positions['net']))
+                print("Tickers: ", tickers)
+
+                # return the quotes for all ticker
+                if len(self.positions['net']) > 0:
+                    quotes = await self.getQuotes(kite, tickers)
+                    print(quotes)
+                else:
                     return
 
                 # exit all the positions and stop the trade
-                for position in self.positions:
+                for position in self.positions['net']:
                     # endpoint will be market sell for index and limit sell for stock options
                     if position['quantity'] > 0:
-                        if 'NIFTY' in position['tradingsymbol']:
+                        if 'NIFTY' in position['net']['tradingsymbol']:
                             endpoint = '/place/market_order/sell'
                         else:
                             endpoint = '/place/limit_order/sell'
 
                         trade = {
-                            'trading_symbol': position['tradingsymbol'],
+                            'trading_symbol': position['net']['tradingsymbol'],
                             'endpoint': endpoint,
-                            'exchange': position['exchange'],
-                            'quantity': position['quantity'],
-                            'price': quotes[position['excahnge'] + ':' + position['tradingsymbol']]['depth']['buy'][1]['price']
+                            'exchange': position['net']['exchange'],
+                            'quantity': position['net']['quantity'],
+                            'price': quotes[position['net']['excahnge'] + ':' + position['net']['tradingsymbol']]['depth']['buy'][1]['price']
                         }
 
                         orderid, err = await self.perform_action(endpoint, trade)
