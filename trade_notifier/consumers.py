@@ -163,6 +163,9 @@ class OrderConsumer(AsyncJsonWebsocketConsumer):
         except Exception as e:
             return {"error": str(e)}
 
+    async def getQuotes(self, kite: KiteConnect, tickers):
+        return kite.quote(tickers)
+
     async def perform_action(self, endpoint, data):
         err = None
         orderid = None
@@ -207,6 +210,41 @@ class OrderConsumer(AsyncJsonWebsocketConsumer):
             if "error" in self.positions or "error" in self.positions:
                 flag = False
                 await self.send_json({"error": {"positions": self.positions, "margins": self.margins}})
+
+            if 'exit_all' in data and data['exit_all'] == True and flag:
+                flag = False
+                self.positions = await self.getPositions(kite)
+                self.margins = await self.getMargins(kite)
+
+                # get the quotes for all the ticker
+                try:
+                    quotes = await self.getQuotes(kite, list(map(lambda x: x['exchange'] + ':' + x['tradingsymbol'], self.positions['net'])))
+                except:
+                    return
+
+                # exit all the positions and stop the trade
+                for position in self.positions:
+                    # endpoint will be market sell for index and limit sell for stock options
+                    if position['quantity'] > 0:
+                        if 'NIFTY' in position['tradingsymbol']:
+                            endpoint = '/place/market_order/sell'
+                        else:
+                            endpoint = '/place/limit_order/sell'
+
+                        trade = {
+                            'trading_symbol': position['tradingsymbol'],
+                            'endpoint': endpoint,
+                            'exchange': position['exchange'],
+                            'quantity': position['quantity'],
+                            'price': quotes[position['excahnge'] + ':' + position['tradingsymbol']]['depth']['buy'][1]['price']
+                        }
+
+                        orderid, err = await self.perform_action(endpoint, trade)
+
+                        if not(err):
+                            await self.send_json({"orderid": orderid, "type": "SELL"})
+                        else:
+                            await self.send_json({"error": str(err)})
 
             if data['tag'] == 'ENTRY' and flag:
                 # check the margins and then enter
