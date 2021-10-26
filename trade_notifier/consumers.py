@@ -164,7 +164,10 @@ class OrderConsumer(AsyncJsonWebsocketConsumer):
             return {"error": str(e)}
 
     async def getQuotes(self, kite: KiteConnect, tickers):
-        return kite.quote(tickers)
+        try:
+            return kite.quote(tickers)
+        except Exception as e:
+            return {"error": str(e)}
 
     async def perform_action(self, endpoint, data):
         err = None
@@ -224,8 +227,11 @@ class OrderConsumer(AsyncJsonWebsocketConsumer):
                 # return the quotes for all ticker
                 if len(self.positions['net']) > 0:
                     quotes = await self.getQuotes(kite, tickers)
-                    print(quotes)
+                    if "error" in quotes:
+                        await self.send_json(quotes)
+                        return
                 else:
+                    await self.send_json({"error": "no positions to exit"})
                     return
 
                 # exit all the positions and stop the trade
