@@ -101,7 +101,7 @@ class UserData(AsyncWebsocketConsumer):
                 return
             else:
                 # cache hit has occured so send it to the user
-                await self.send(json.dumps(data_))
+                await self.send(data_.decode())
                 # increment the counter
                 self.counter += 1
                 return
