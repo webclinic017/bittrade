@@ -1,4 +1,5 @@
 from kiteconnect import KiteConnect  # type: ignore
+import asyncio
 
 
 def market_buy_order(kite: KiteConnect, tradingsymbol, exchange, quantity):
@@ -92,3 +93,34 @@ def validate_order(order_id: int, kite: KiteConnect):
     for order in order_history:
         if order['status'] == 'REJECTED':
             raise Exception('Order rejected')
+
+
+async def getPnl(positions):
+    sum = 0
+    if "error" in positions:
+        return positions
+    for pos in positions['net']:
+        pnl = pos['pnl']
+        sum += pnl
+    return {"pnl": sum}
+
+
+async def getPositions(kite: KiteConnect):
+    try:
+        return kite.positions()
+    except Exception as e:
+        return {"error": str(e)}
+
+
+async def getMargins(kite: KiteConnect):
+    try:
+        return kite.margins()
+    except Exception as e:
+        return {"error": str(e)}
+
+
+async def getQuotes(kite: KiteConnect, tickers):
+    try:
+        return kite.quote(tickers)
+    except Exception as e:
+        return {"error": str(e)}
