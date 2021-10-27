@@ -178,17 +178,17 @@ class OrderConsumer(AsyncJsonWebsocketConsumer):
                 # check for the margins
                 if price < self.margins["equity"]["available"]["live_balance"]:
                     # place the trade as the margins are sufficent
-                    try:
-                        # try to place the trade
-                        orderid = await self.perform_action(data['endpoint'], data)
-                    except Exception as e:
-                        # send the error message
-                        await self.send_json({"error": str(e)})
+
+                    # try placing the order
+                    orderid, err = await self.perform_action(data['endpoint'], data)
+
+                    if err:
+                        await self.send_json({"error": str(err)})
                     else:
-                        # update the margins in the cache
-                        self.margins = await getMargins(kite)
                         # send the success message
                         await self.send_json({"type": "BUY", "orderid": orderid})
+
+                    self.margins = await getMargins(kite)
                     return
                 else:
                     # send margins not sufficent error to the frontend
@@ -209,24 +209,32 @@ class OrderConsumer(AsyncJsonWebsocketConsumer):
                 for position in self.positions["net"]:
                     if position['tradingsymbol'] == data['trading_symbol'] and position['quantity'] > 0:
                         data['quantity'] = position['quantity']
+
+                        if data['type'] == 'INDEXOPT' or data['type'] == 'INDEXFUT':
+                            if 'BANKNIFTY' in data['tradingsymbol']:
+                                if data['quantity'] > 1200:
+                                    data['quantity'] = 1200
+                            else:
+                                if data['quantity'] > 1800:
+                                    data['quantity'] = 1800
+
                         is_present = True
                         break
 
                 if is_present:
                     # execute the exit order if the position is present
-                    try:
-                        orderid = await self.perform_action(data['endpoint'], data)
-                    except Exception as e:
-                        await self.send_json({"error": str(e)})
-                        return
+                    orderid, err = await self.perform_action(data['endpoint'], data)
+
+                    if err:
+                        await self.send_json({"error": str(err)})
                     else:
-                        # send the success message
                         await self.send_json({"type": "SELL", "orderid": orderid})
-                        # update the positions
-                        self.positions = await getPositions(kite)
-                        # update the margins
-                        self.margins = await getMargins(kite)
-                        return
+
+                    # update the positions
+                    self.positions = await getPositions(kite)
+                    # update the margins
+                    self.margins = await getMargins(kite)
+                    return
 
             if data['tag'] == 'EXIT_ALL':
                 # exit all the positions
@@ -241,23 +249,31 @@ class OrderConsumer(AsyncJsonWebsocketConsumer):
                 for position in self.positions["net"]:
                     if position["quantity"] > 0:
                         quote = await getQuotes(kite, [position["exchange"] + ":" + position["tradingsymbol"]])
+                        quantity = position["quantity"]
+
+                        if position['exchange'] == 'NSE':
+                            if 'BANKNIFTY' in data['tradingsymbol']:
+                                if quantity > 1200:
+                                    quantity = 1200
+                            else:
+                                if quantity > 1800:
+                                    quantity = 1800
+
                         trade = {
                             "trading_symbol": position['tradingsymbol'],
                             "endpoint": '/place/market_order/sell' if position["exchange"] == "NSE" else "/place/limit_order/sell",
                             "price": quote["depth"]["buy"][1]["price"],
-                            "quantity": position["quantity"]
+                            "quantity": quantity
                         }
 
-                        try:
-                            orderid = await self.perform_action(trade["endpoint"], trade)
-                        except Exception as e:
-                            await self.send_json({"error": str(e)})
-                            return
+                        orderid, err = await self.perform_action(trade['endpoint'], data)
+
+                        if err:
+                            await self.send_json({"error": str(err)})
                         else:
-                            # send the success message
                             await self.send_json({"type": "SELL", "orderid": orderid})
-                            # update the positions
-                            self.positions = await getPositions(kite)
-                            # update the margins
-                            self.margins = await getMargins(kite)
-                            return
+
+                        # update the positions
+                        self.positions = await getPositions(kite)
+                        # update the margins
+                        self.margins = await getMargins(kite)

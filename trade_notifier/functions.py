@@ -1,5 +1,4 @@
 from kiteconnect import KiteConnect  # type: ignore
-import asyncio
 
 
 def market_buy_order(kite: KiteConnect, tradingsymbol, exchange, quantity):
