@@ -186,7 +186,7 @@ class OrderConsumer(AsyncJsonWebsocketConsumer):
                         await self.send_json({"error": str(e)})
                     else:
                         # update the margins in the cache
-                        self.margins = await getMargins()
+                        self.margins = await getMargins(kite)
                         # send the success message
                         await self.send_json({"type": "BUY", "orderid": orderid})
                     return
