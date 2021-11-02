@@ -420,7 +420,7 @@ class PositionDetailAPI(APIView):
 
 class APICredentialDetailView(APIView):
 
-    def get(self, userid):
+    def get(self, request, userid):
         try:
             api = APICredentials.objects.get(userid=userid)
         except:
