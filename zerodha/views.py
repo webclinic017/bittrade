@@ -15,8 +15,8 @@ from .functions import (
     check_authorization,
     validate_order
 )
-from zerodha.models import MarketOrder, LimitOrder, Position
-from zerodha.serializers import MarketOrderSerializer, LimitOrderSerializer, PositionSerializer
+from zerodha.models import APICredentials, MarketOrder, LimitOrder, Position
+from zerodha.serializers import APICredentialSerializer, MarketOrderSerializer, LimitOrderSerializer, PositionSerializer
 from rest_framework import generics
 from zerodha.pagenation import OrdersPagenation
 from django.conf import settings
@@ -416,3 +416,15 @@ class PositionDetailAPI(APIView):
                 position.save()
 
         return Response(status=status.HTTP_200_OK)
+
+
+class APICredentialDetailView(APIView):
+
+    def get(self, userid):
+        try:
+            api = APICredentials.objects.get(userid=userid)
+        except:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        else:
+            serializer = APICredentialSerializer(api)
+            return Response(serializer.data)

@@ -10,25 +10,30 @@ ORDER_TYPES = [
     ('SELL', 'SELL')
 ]
 
+
 class MarketOrder(models.Model):
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='market_orders')
+    user = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, related_name='market_orders')
     trading_symbol = models.CharField(max_length=100)
     exchange = models.CharField(max_length=10)
     quantity = models.IntegerField()
     action = models.CharField(max_length=10, choices=ORDER_TYPES)
-    
+
 
 class LimitOrder(models.Model):
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='limit_orders')
+    user = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, related_name='limit_orders')
     trading_symbol = models.CharField(max_length=100)
     exchange = models.CharField(max_length=10)
     quantity = models.IntegerField()
     price = models.FloatField()
     action = models.CharField(max_length=10, choices=ORDER_TYPES)
-    
+
 
 class Position(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='positions') # <-- reverse foreign key field positions
+    # <-- reverse foreign key field positions
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='positions')
     entry_price = models.FloatField(null=False)
     instrument_token = models.CharField(max_length=50, null=False)
     ltp = models.FloatField()
@@ -37,9 +42,19 @@ class Position(models.Model):
     tag = models.CharField(max_length=20, null=False)
     trading_symbol = models.CharField(max_length=50, null=False)
     uri = models.CharField(max_length=200, null=False)
-    
+
     def __str__(self):
         return f'{self.user}[{self.trading_symbol}]'
+
+
+class APICredentials(models.Model):
+    userid = models.CharField(unique=True, max_length=50)
+    api_key = models.CharField(max_length=50, unique=True)
+    api_secret = models.CharField(max_length=50, unique=True)
+    access_token = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.userid
 
 
 @receiver(post_save, sender=User)
