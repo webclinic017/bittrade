@@ -1,7 +1,6 @@
 from channels.generic.websocket import AsyncWebsocketConsumer, AsyncJsonWebsocketConsumer
 import json
 from kiteconnect import KiteConnect
-from requests.api import get
 from trade_notifier.utils import db
 
 from trade_notifier.functions import (
