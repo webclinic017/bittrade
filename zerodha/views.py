@@ -30,6 +30,9 @@ def zerodha_auth(request):
 
 
 class ZerodhaAccessToken(APIView):
+
+    permission_classes = [IsAuthenticated]
+
     def post(self, request):
         data = request.data
         check_validity(data)
@@ -39,6 +42,9 @@ class ZerodhaAccessToken(APIView):
             data['request_token'],
             data['api_secret']
         )
+
+        request.user.profile.access_token = data_['access_token']
+        request.user.profile.save()
 
         return Response({
             'access_token': data_['access_token']
