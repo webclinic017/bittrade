@@ -43,8 +43,8 @@ class ZerodhaAccessToken(APIView):
             data['api_secret']
         )
 
-        request.user.profile.access_token = data_['access_token']
-        request.user.profile.save()
+        request.user.userprofile.access_token = data_['access_token']
+        request.user.userprofile.save()
 
         return Response({
             'access_token': data_['access_token']
