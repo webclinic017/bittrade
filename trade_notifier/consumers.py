@@ -13,7 +13,6 @@ from trade_notifier.functions import (
     getMargins,
     getPnl,
     getPositions,
-    getQuotes
 )
 
 
@@ -197,8 +196,8 @@ class OrderConsumer(AsyncJsonWebsocketConsumer):
                     if position['tradingsymbol'] == data['trading_symbol'] and position['quantity'] > 0:
                         data['quantity'] = position['quantity']
 
-                        if data['type'] == 'INDEXOPT' or data['type'] == 'INDEXFUT':
-                            if 'BANKNIFTY' in data['tradingsymbol']:
+                        if 'INDEX' in data['type']:
+                            if 'BANKNIFTY' in data['trading_symbol']:
                                 if data['quantity'] > 1200:
                                     data['quantity'] = 1200
                             else:
