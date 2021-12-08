@@ -2,6 +2,7 @@ from channels.generic.websocket import AsyncWebsocketConsumer, AsyncJsonWebsocke
 import json
 from kiteconnect import KiteConnect
 from trade_notifier.utils import db
+from entities.trade import Trade
 
 from trade_notifier.functions import (
     market_buy_order,
@@ -128,31 +129,32 @@ class OrderConsumer(AsyncJsonWebsocketConsumer):
 
         await self.accept()
 
-    async def perform_action(self, endpoint, data):
+    async def perform_action(self, trade: Trade):
         err = None
         orderid = None
 
         try:
-            kite = self.validators[endpoint](data)
+            kite = self.validators[trade.endpoint](trade)
         except AssertionError as e:
             return orderid, e
 
-        if 'limit' in endpoint:
+        if 'limit' in trade.endpoint:
             try:
-                orderid = self.endpoints[endpoint](
-                    kite, data['trading_symbol'], data['exchange'], data['quantity'], data['price'])
+                orderid = self.endpoints[trade.endpoint](
+                    kite, trade.trading_symbol, trade.exchange, trade.quantity, trade.price)
             except Exception as e:
                 err = e
         else:
             try:
-                orderid = self.endpoints[endpoint](
-                    kite, data['trading_symbol'], data['exchange'], data['quantity'])
+                orderid = self.endpoints[trade.endpoint](
+                    kite, trade.trading_symbol, trade.exchange, trade.quantity)
             except Exception as e:
                 err = e
         return orderid, err
 
     async def receive_json(self, content):
         data = content
+        trade = Trade(content)
         # the api key is been passed correctly
         if ("api_key" in data) and ("access_token" in data) and (data["api_key"] != None and data["access_token"] != None):
             kite = KiteConnect(data["api_key"], data["access_token"])
@@ -174,7 +176,7 @@ class OrderConsumer(AsyncJsonWebsocketConsumer):
                     # place the trade as the margins are sufficent
 
                     # try placing the order
-                    orderid, err = await self.perform_action(data['endpoint'], data)
+                    orderid, err = await self.perform_action(trade)
 
                     if err:
                         await self.send_json({"error": str(err)})
@@ -209,7 +211,7 @@ class OrderConsumer(AsyncJsonWebsocketConsumer):
 
                 if is_present:
                     # execute the exit order if the position is present
-                    orderid, err = await self.perform_action(data['endpoint'], data)
+                    orderid, err = await self.perform_action(trade)
 
                     if err:
                         await self.send_json({"error": str(err)})
