@@ -1,20 +1,19 @@
 from channels.generic.websocket import AsyncWebsocketConsumer, AsyncJsonWebsocketConsumer
 import json
 from kiteconnect import KiteConnect
+from entities.bot import TradeBot
+from entities.order import OrderResult
 from trade_notifier.utils import db
 from entities.trade import Trade
+from rest_framework.authtoken.models import Token
+from channels.db import database_sync_to_async
 
 from trade_notifier.functions import (
-    market_buy_order,
-    market_sell_order,
-    limit_buy_order,
-    limit_sell_order,
-    validate_limit_api,
-    validate_market_api,
     getMargins,
     getPnl,
     getPositions,
 )
+from users.models import UserProfile
 
 
 class Notifier(AsyncWebsocketConsumer):
@@ -107,117 +106,41 @@ class UserData(AsyncWebsocketConsumer):
 
 
 class OrderConsumer(AsyncJsonWebsocketConsumer):
-
     async def connect(self):
-        self.positions = None
-        self.margins = None
-        self.key = ""
-
-        self.endpoints = {
-            '/place/market_order/buy': market_buy_order,
-            '/place/market_order/sell': market_sell_order,
-            '/place/limit_order/buy': limit_buy_order,
-            '/place/limit_order/sell': limit_sell_order
-        }
-
-        self.validators = {
-            '/place/market_order/buy': validate_market_api,
-            '/place/market_order/sell': validate_market_api,
-            '/place/limit_order/buy': validate_limit_api,
-            '/place/limit_order/sell': validate_limit_api
-        }
-
+        self.bot = None
         await self.accept()
 
-    async def perform_action(self, trade: Trade):
-        err = None
-        orderid = None
+    # error handler for the websocket
+    async def on_error(self, error):
+        await self.send_json({"error": str(error)})
 
+    async def execute_safe(self, func, *args) -> OrderResult:
         try:
-            kite = self.validators[trade.endpoint](trade)
-        except AssertionError as e:
-            return orderid, e
-
-        if 'limit' in trade.endpoint:
-            try:
-                orderid = self.endpoints[trade.endpoint](
-                    kite, trade.trading_symbol, trade.exchange, trade.quantity, trade.price)
-            except Exception as e:
-                err = e
+            order = func(*args)
+        except Exception as e:
+            await self.on_error(e)
+            return
         else:
-            try:
-                orderid = self.endpoints[trade.endpoint](
-                    kite, trade.trading_symbol, trade.exchange, trade.quantity)
-            except Exception as e:
-                err = e
-        return orderid, err
+            return order
+
+    @database_sync_to_async
+    def get_user_profile(self, token):
+        token = Token.objects.get(key=token)
+        profile = UserProfile.objects.get(user=token.user)
+        return profile
 
     async def receive_json(self, content):
-        data = content
+        # authenticate the websocket first
+        if self.bot == None and "authtoken" in content:
+            profile = await self.get_user_profile(content["authtoken"])
+            # creating the trade bot instance when authentication is successful
+            self.bot = TradeBot(profile)
+        elif self.bot == None:
+            await self.send_json({"error": "please provide authtoken"})
+            return
+
         trade = Trade(content)
-        # the api key is been passed correctly
-        if ("api_key" in data) and ("access_token" in data) and (data["api_key"] != None and data["access_token"] != None):
-            kite = KiteConnect(data["api_key"], data["access_token"])
+        order = await self.execute_safe(self.bot.execTrade, trade)
 
-            self.positions = await getPositions(kite)
-            self.margins = await getMargins(kite)
-
-            # if there is an error in positions or margins then return the error
-            if "error" in self.positions or "error" in self.margins:
-                await self.send_json({"error": "invalid api_key or access_token"})
-                return
-
-            if data['tag'] == 'ENTRY':
-                # get the price
-                price = data["price"] * data["quantity"]
-
-                # check for the margins
-                if price < self.margins["equity"]["available"]["live_balance"]:
-                    # place the trade as the margins are sufficent
-
-                    # try placing the order
-                    orderid, err = await self.perform_action(trade)
-
-                    if err:
-                        await self.send_json({"error": str(err)})
-                    else:
-                        # send the success message
-                        await self.send_json({"type": "BUY", "orderid": orderid})
-
-                    return
-                else:
-                    # send margins not sufficent error to the frontend
-                    await self.send_json({"error": "margins are not sufficent"})
-                    return
-
-            if data['tag'] == 'EXIT':
-                # check if position is present or not
-                is_present = False
-
-                for position in self.positions["net"]:
-                    if position['tradingsymbol'] == data['trading_symbol'] and position['quantity'] > 0:
-                        data['quantity'] = position['quantity']
-
-                        if 'INDEX' in data['type']:
-                            if 'BANKNIFTY' in data['trading_symbol']:
-                                if data['quantity'] > 1200:
-                                    data['quantity'] = 1200
-                            else:
-                                if data['quantity'] > 1800:
-                                    data['quantity'] = 1800
-
-                        is_present = True
-                        break
-
-                if is_present:
-                    # execute the exit order if the position is present
-                    orderid, err = await self.perform_action(trade)
-
-                    if err:
-                        await self.send_json({"error": str(err)})
-                    else:
-                        await self.send_json({"type": "SELL", "orderid": orderid})
-
-                    return
-                else:
-                    await self.send_json({'error': 'position not present'})
+        if order:
+            await self.send_json(order.toDict())
