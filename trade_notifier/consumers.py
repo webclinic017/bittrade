@@ -135,6 +135,7 @@ class OrderConsumer(AsyncJsonWebsocketConsumer):
             profile = await self.get_user_profile(content["authtoken"])
             # creating the trade bot instance when authentication is successful
             self.bot = TradeBot(profile)
+            return
         elif self.bot == None:
             await self.send_json({"error": "please provide authtoken"})
             return
