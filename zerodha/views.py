@@ -10,12 +10,10 @@ from .functions import (
     limit_sell_order,
     market_buy_order,
     market_sell_order,
-    validate_limit_api,
-    validate_market_api,
     check_authorization,
     validate_order
 )
-from zerodha.models import APICredentials, MarketOrder, LimitOrder, Position
+from zerodha.models import APICredentials, Position
 from zerodha.serializers import APICredentialSerializer, MarketOrderSerializer, LimitOrderSerializer, PositionSerializer
 from rest_framework import generics
 from zerodha.pagenation import OrdersPagenation
@@ -73,7 +71,7 @@ class MarketOrderBuy(APIView):
     def post(self, request):
         data = request.data
         try:
-            kite_ = validate_market_api(data)
+            kite_ = request.user.userprofile.getKiteInstance()
 
             if data['exchange'] == 'NFO':
                 exchange = kite_.EXCHANGE_NFO
@@ -92,15 +90,6 @@ class MarketOrderBuy(APIView):
                 order_id = market_buy_order(
                     kite_, data['trading_symbol'], exchange, data['quantity'])
                 validate_order(order_id, kite_)
-
-                # create a market order row in the database
-                MarketOrder.objects.create(
-                    user=request.user,
-                    trading_symbol=data['trading_symbol'],
-                    exchange=data['exchange'],
-                    quantity=data['quantity'],
-                    action='BUY'
-                )
 
                 return Response({
                     'message': f'order id is {order_id}'
@@ -122,7 +111,7 @@ class MarketOrderSell(APIView):
     def post(self, request):
         data = request.data
         try:
-            kite_ = validate_market_api(data)
+            kite_ = request.user.userprofile.getKiteInstance()
 
             if data['exchange'] == 'NFO':
                 exchange = kite_.EXCHANGE_NFO
@@ -157,15 +146,6 @@ class MarketOrderSell(APIView):
                     kite_, data['trading_symbol'], exchange, quantity)
                 validate_order(order_id, kite_)
 
-                # create a market order row in the database
-                MarketOrder.objects.create(
-                    user=request.user,
-                    trading_symbol=data['trading_symbol'],
-                    exchange=data['exchange'],
-                    quantity=quantity,
-                    action='SELL'
-                )
-
                 return Response({
                     'message': f'order id is {order_id}'
                 }, status=status.HTTP_200_OK)
@@ -190,7 +170,7 @@ class LimitOrderBuy(APIView):
     def post(self, request):
         data = request.data
         try:
-            kite_ = validate_limit_api(data)
+            kite_ = request.user.userprofile.getKiteInstance()
 
             if data['exchange'] == 'NFO':
                 exchange = kite_.EXCHANGE_NFO
@@ -209,16 +189,6 @@ class LimitOrderBuy(APIView):
                 order_id = limit_buy_order(
                     kite_, data['trading_symbol'], exchange, data['quantity'], data['price'])
                 validate_order(order_id, kite_)
-
-                # create limit order object
-                LimitOrder.objects.create(
-                    user=request.user,
-                    trading_symbol=data['trading_symbol'],
-                    exchange=data['exchange'],
-                    quantity=data['quantity'],
-                    price=data['price'],
-                    action='BUY'
-                )
 
                 return Response({
                     'message': f'order id is {order_id}'
@@ -242,7 +212,7 @@ class LimitOrderSell(APIView):
     def post(self, request):
         data = request.data
         try:
-            kite_ = validate_limit_api(data)
+            kite_ = request.user.userprofile.getKiteInstance()
 
             if data['exchange'] == 'NFO':
                 exchange = kite_.EXCHANGE_NFO
@@ -275,16 +245,6 @@ class LimitOrderSell(APIView):
                 order_id = limit_sell_order(
                     kite_, data['trading_symbol'], exchange, quantity, data['price'])
                 validate_order(order_id, kite_)
-
-                # create limit order object
-                LimitOrder.objects.create(
-                    user=request.user,
-                    trading_symbol=data['trading_symbol'],
-                    exchange=data['exchange'],
-                    quantity=quantity,
-                    price=data['price'],
-                    action='SELL'
-                )
 
                 return Response({
                     'message': f'order id is {order_id}'

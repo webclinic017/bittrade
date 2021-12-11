@@ -1,12 +1,14 @@
 from django.db import models
 from django.contrib.auth.models import User
+from kiteconnect.connect import KiteConnect
+from entities.trade import OrderType, Trade
 
 # Create your models here.
 
 
 class UserProfile(models.Model):
-
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(
+        User, on_delete=models.CASCADE, related_name='userprofile')
     api_key = models.CharField(max_length=200)
     api_secret = models.CharField(max_length=200)
     access_token = models.CharField(max_length=200)
@@ -18,3 +20,6 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return self.user.username
+
+    def getKiteInstance(self) -> KiteConnect:
+        return KiteConnect(self.api_key, self.access_token)
