@@ -7,14 +7,10 @@ from rest_framework.response import Response
 from rest_framework import status
 from .serializers import UserProfileSerializer
 from .models import UserProfile
-# from pymongo import MongoClient
 from zerodha.models import APICredentials
 
 
 def update_accesstoken(request):
-    # mongo_clients = MongoClient(
-    #     "mongodb+srv://jag:rtut12#$@cluster0.alwvk.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
-    # )
     api_key, api_secret = '', ''
 
     if request.method == 'GET':
@@ -25,13 +21,8 @@ def update_accesstoken(request):
             api_key, api_secret = api.api_key, api.api_secret
             flag = True
 
-        # mongo_clients.close()
-
         return render(request, "update_accesstoken.html", {'api_key': api_key, 'api_secret': api_secret, 'flag': flag, 'userid': request.GET.get("userid", "")})
     elif request.method == 'POST':
-
-        # collection = mongo_clients["client_details"]["clients"]
-
         api_key = request.POST['api_key']
         api_secret = request.POST['api_secret']
 
@@ -46,9 +37,6 @@ def update_accesstoken(request):
         api.access_token = access_token
         api.save()
 
-        # collection.update_one({'ZERODHA ID': request.POST['userid']}, {
-        #   "$set": {"ACCESS TOKEN": access_token}})
-        # mongo_clients.close()
         return HttpResponse('updated the token')
 
 
@@ -60,11 +48,9 @@ class IsLoggedIn(APIView):
 
 
 class UpdateProfile(APIView):
-
     permission_classes = [IsAuthenticated, ]
 
     def put(self, request):
-
         UserProfile.objects.update_or_create(
             user=request.user,
             defaults=request.data
@@ -74,7 +60,6 @@ class UpdateProfile(APIView):
 
 
 class ProfileDetail(APIView):
-
     permission_classes = [IsAuthenticated, ]
 
     def get(self, request):

@@ -18,17 +18,15 @@ from zerodha.serializers import APICredentialSerializer, MarketOrderSerializer, 
 from rest_framework import generics
 from zerodha.pagenation import OrdersPagenation
 from django.conf import settings
+
+
 # return the request token to the user
-
-
 def zerodha_auth(request):
     return HttpResponseRedirect(settings.FRONTEND_URL + "/request_token-zerodha/" + request.GET['request_token'])
 
+
 # get the access token of zerodha api
-
-
 class ZerodhaAccessToken(APIView):
-
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
@@ -48,9 +46,8 @@ class ZerodhaAccessToken(APIView):
             'access_token': data_['access_token']
         }, status=status.HTTP_200_OK)
 
+
 # get zerodha login url
-
-
 class ZerodhaLoginUrl(APIView):
     def post(self, request):
         assert 'api_key' in request.data
@@ -62,8 +59,8 @@ class ZerodhaLoginUrl(APIView):
             'login_url': kite.login_url()
         })
 
-# market orders
 
+# market orders
 
 class MarketOrderBuy(APIView):
     permission_classes = [IsAuthenticated, ]
@@ -84,6 +81,7 @@ class MarketOrderBuy(APIView):
 
                 # check the margins and then enter
                 margins = kite_.margins()
+
                 if data["ltp"]*data["quantity"] > margins["equity"]["available"]["live_balance"]:
                     raise Exception("insufficent margins")
 
@@ -161,8 +159,8 @@ class MarketOrderSell(APIView):
                 'error': str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-# limit orders
 
+# limit orders
 
 class LimitOrderBuy(APIView):
     permission_classes = [IsAuthenticated, ]
