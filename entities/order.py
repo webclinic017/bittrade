@@ -43,7 +43,7 @@ class OrderExecutor:
         kite = self.kite
         order_id = kite.place_order(
             variety=kite.VARIETY_REGULAR,
-            exchange=trade.exchange,
+            exchange=trade.exchange.value,
             tradingsymbol=trade.trading_symbol,
             transaction_type=kite.TRANSACTION_TYPE_BUY,
             quantity=trade.quantity,
@@ -57,7 +57,7 @@ class OrderExecutor:
         kite = self.kite
         order_id = kite.place_order(
             variety=kite.VARIETY_REGULAR,
-            exchange=trade.exchange,
+            exchange=trade.exchange.value,
             tradingsymbol=trade.trading_symbol,
             transaction_type=kite.TRANSACTION_TYPE_SELL,
             quantity=trade.quantity,

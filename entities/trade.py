@@ -1,4 +1,5 @@
 from enum import Enum
+from kiteconnect.connect import KiteConnect
 
 
 class Tag(Enum):
@@ -7,8 +8,8 @@ class Tag(Enum):
 
 
 class Exchange(Enum):
-    NSE = 'NSE'
-    NFO = 'NFO'
+    NSE = KiteConnect.EXCHANGE_NSE
+    NFO = KiteConnect.EXCHANGE_NFO
 
 
 class OrderType(Enum):
