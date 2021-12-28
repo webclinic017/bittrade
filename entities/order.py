@@ -33,7 +33,7 @@ class OrderExecutor:
             OrderType.MARKET_ORDER_BUY: self.__placeMarketBuyOrder,
             OrderType.MARKET_ORDER_SELL: self.__placeMarketSellOrder,
             OrderType.LIMIT_ORDER_BUY: self.__placeLimitBuyOrder,
-            OrderType.MARKET_ORDER_SELL: self.__placeLimitSellOrder
+            OrderType.LIMIT_ORDER_SELL: self.__placeLimitSellOrder
         }
 
     def placeOrderSync(self, trade: Trade) -> OrderResult:
