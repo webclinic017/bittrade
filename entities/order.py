@@ -67,32 +67,32 @@ class OrderExecutor:
         )
         return OrderResult(order_id, Action.SELL)
 
-    def __placeLimitBuyOrder(self, tradingsymbol, exchange, price, quantity) -> OrderResult:
+    def __placeLimitBuyOrder(self, trade: Trade) -> OrderResult:
         kite = self.kite
         order_id = kite.place_order(
             variety=kite.VARIETY_REGULAR,
-            exchange=exchange,
-            tradingsymbol=tradingsymbol,
+            exchange=trade.exchange.value,
+            tradingsymbol=trade.trading_symbol,
             transaction_type=kite.TRANSACTION_TYPE_BUY,
-            quantity=quantity,
+            quantity=trade.quantity,
             product=kite.PRODUCT_NRML,
             order_type=kite.ORDER_TYPE_LIMIT,
-            price=price,
+            price=trade.price,
             validity=kite.VALIDITY_DAY,
         )
         return OrderResult(order_id, Action.BUY)
 
-    def __placeLimitSellOrder(self, tradingsymbol, exchange, price, quantity) -> OrderResult:
+    def __placeLimitSellOrder(self, trade: Trade) -> OrderResult:
         kite = self.kite
         order_id = kite.place_order(
             variety=kite.VARIETY_REGULAR,
-            exchange=exchange,
-            tradingsymbol=tradingsymbol,
+            exchange=trade.exchange,
+            tradingsymbol=trade.exchange,
             transaction_type=kite.TRANSACTION_TYPE_SELL,
-            quantity=quantity,
+            quantity=trade.quantity,
             product=kite.PRODUCT_NRML,
             order_type=kite.ORDER_TYPE_LIMIT,
-            price=price,
+            price=trade.price,
             validity=kite.VALIDITY_DAY,
         )
         return OrderResult(order_id, Action.SELL)
