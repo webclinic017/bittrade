@@ -1,20 +1,13 @@
 from typing import Tuple
 from channels.generic.websocket import AsyncWebsocketConsumer, AsyncJsonWebsocketConsumer
-import json
-from kiteconnect import KiteConnect
 from constants.channels import USER_CHANNEL_KEY
 from entities.bot import TradeBot
 from entities.order import OrderResult
+from entities.streamer import KiteStreamer
 from trade_notifier.utils import db
 from entities.trade import Trade
 from rest_framework.authtoken.models import Token
 from channels.db import database_sync_to_async
-
-from trade_notifier.functions import (
-    getMargins,
-    getPnl,
-    getPositions,
-)
 from users.models import UserProfile
 
 
@@ -64,29 +57,44 @@ class UserData(AsyncJsonWebsocketConsumer):
         self.counter = 0
         self.key = ''
 
-        self.user = None
+        self.profile = None
         self.token = ''
+        self.streamer = None
 
     async def disconnect(self, code):
         db.delete(self.key)
 
+    async def on_error(self, error):
+        await self.send_json({"error": str(error)})
+        return
+
+    async def execute_safe(self, func, *args) -> bool:
+        try:
+            func(*args)
+        except Exception as e:
+            self.on_error(e)
+            return False
+        else:
+            return True
+
     @database_sync_to_async
     def get_user(self, token):
         token = Token.objects.get(key=token)
-        return token.user
+        return UserProfile.objects.get(user=token.user)
 
     async def receive_json(self, content):
         # when auth token is received from the user end authenticate the user and save his token
-        if self.user == None:
+        if self.profile == None:
             if "authtoken" in content:
                 # try to authenticate the user
-                user = await self.get_user(content["authtoken"])
+                profile = await self.get_user(content["authtoken"])
 
-                if user == None:
+                if profile == None:
                     await self.send_json({"error": "failed to authenticate user"})
                     return
                 else:
-                    self.user = user
+                    self.profile = profile
+                    self.streamer = KiteStreamer(self.profile.kite)
 
                     # save the token
                     self.token = content["authtoken"]
@@ -102,42 +110,17 @@ class UserData(AsyncJsonWebsocketConsumer):
                 await self.send_json({"error":  "please provide a authtoken"})
                 return
 
-        data = content
-        if "api_key" in data and "access_token" in data and (data["api_key"] != None or data["access_token"] != None):
-            self.key = data["api_key"]
+        margins = await self.streamer.get_margins_async()
+        positions = await self.streamer.get_positions_async()
+        pnl = await self.streamer.get_pnl_async()
 
-            kite = KiteConnect(
-                api_key=data["api_key"], access_token=data["access_token"])
+        await self.send_json({
+            "margins": margins.data,
+            "positions": positions.data,
+            "pnl": pnl
+        })
 
-            # hit the cache first
-            data_ = db.get(data['api_key'])
-
-            # cache miss has occured or there is an error in cache
-            if (data_ != None and 'error' in json.loads(data_)["positions"]) or data == None or self.counter % 10 == 0:
-                # reterive the positions and margins
-
-                positions = await getPositions(kite)
-                pnl = await getPnl(positions)
-                margins = await getMargins(kite)
-                data_ = {
-                    "positions": positions,
-                    "pnl": pnl,
-                    "margins": margins
-                }
-
-                # store the result in the cache
-                db.set(self.key, json.dumps(data_))
-                # send the data to the user
-                await self.send(text_data=json.dumps(data_))
-                # increment the counter
-                self.counter += 1
-                return
-            else:
-                # cache hit has occured so send it to the user
-                await self.send(data_.decode())
-                # increment the counter
-                self.counter += 1
-                return
+        return
 
 
 class OrderConsumer(AsyncJsonWebsocketConsumer):

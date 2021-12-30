@@ -50,3 +50,5 @@ class Positions:
             self.net.append(
                 Position(position)
             )
+
+        self.data = positions

@@ -53,6 +53,8 @@ class Margins:
         self.equity = Equity()
         self.commodity = Commodity()
 
+        self.data = margins
+
         self.equity.enabled = margins["equity"]["enabled"]
         self.equity.net = margins["equity"]["net"]
 

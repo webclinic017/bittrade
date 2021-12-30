@@ -14,3 +14,17 @@ class KiteStreamer:
     @property
     def positions(self) -> Positions:
         return Positions(self.kite.positions())
+
+    async def get_margins_async(self) -> Margins:
+        return Margins(self.kite.margins())
+
+    async def get_positions_async(self) -> Positions:
+        return Positions(self.kite.positions())
+
+    async def get_pnl_async(self) -> float:
+        pnl = 0
+
+        for position in self.positions.day:
+            pnl += position.pnl
+
+        return pnl
