@@ -1,6 +1,8 @@
+from typing import Tuple
 from channels.generic.websocket import AsyncWebsocketConsumer, AsyncJsonWebsocketConsumer
 import json
 from kiteconnect import KiteConnect
+from constants.channels import USER_CHANNEL_KEY
 from entities.bot import TradeBot
 from entities.order import OrderResult
 from trade_notifier.utils import db
@@ -56,18 +58,51 @@ class InternationNotifier(Notifier):
     group_name = "international"
 
 
-class UserData(AsyncWebsocketConsumer):
-
+class UserData(AsyncJsonWebsocketConsumer):
     async def connect(self):
         await self.accept()
         self.counter = 0
         self.key = ''
 
+        self.user = None
+        self.token = ''
+
     async def disconnect(self, code):
         db.delete(self.key)
 
-    async def receive(self, text_data):
-        data = json.loads(text_data)
+    @database_sync_to_async
+    def get_user(self, token):
+        token = Token.objects.get(key=token)
+        return token.user
+
+    async def receive_json(self, content):
+        # when auth token is received from the user end authenticate the user and save his token
+        if self.user == None:
+            if "authtoken" in content:
+                # try to authenticate the user
+                user = await self.get_user(content["authtoken"])
+
+                if user == None:
+                    await self.send_json({"error": "failed to authenticate user"})
+                    return
+                else:
+                    self.user = user
+
+                    # save the token
+                    self.token = content["authtoken"]
+
+                    # add the consumer to a group with "<token>-<USER_CHANNEL_KEY>"
+                    await self.channel_layer.group_add(
+                        self.token + USER_CHANNEL_KEY,
+                        self.channel_name
+                    )
+
+                    return
+            else:
+                await self.send_json({"error":  "please provide a authtoken"})
+                return
+
+        data = content
         if "api_key" in data and "access_token" in data and (data["api_key"] != None or data["access_token"] != None):
             self.key = data["api_key"]
 
@@ -108,20 +143,21 @@ class UserData(AsyncWebsocketConsumer):
 class OrderConsumer(AsyncJsonWebsocketConsumer):
     async def connect(self):
         self.bot = None
+        self.token = ''
         await self.accept()
 
     # error handler for the websocket
     async def on_error(self, error):
         await self.send_json({"error": str(error)})
 
-    async def execute_safe(self, func, *args) -> OrderResult:
+    async def execute_safe(self, func, *args) -> Tuple[OrderResult, bool]:
         try:
             order = func(*args)
         except Exception as e:
             await self.on_error(e)
-            return
+            return None, False
         else:
-            return order
+            return order, True
 
     @database_sync_to_async
     def get_user_profile(self, token):
@@ -133,15 +169,21 @@ class OrderConsumer(AsyncJsonWebsocketConsumer):
         # authenticate the websocket first
         if self.bot == None and "authtoken" in content:
             profile = await self.get_user_profile(content["authtoken"])
+
             # creating the trade bot instance when authentication is successful
             self.bot = TradeBot(profile)
+
+            # save the token for sending messages to the user consumer
+            # here the token is helpful as a group name
+            self.token = content["authtoken"]
+
             return
         elif self.bot == None:
             await self.send_json({"error": "please provide authtoken"})
             return
 
         trade = Trade(content)
-        order = await self.execute_safe(self.bot.execTrade, trade)
+        order, success = await self.execute_safe(self.bot.execTrade, trade)
 
-        if order:
+        if success:
             await self.send_json(order.toDict())
