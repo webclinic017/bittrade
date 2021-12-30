@@ -21,5 +21,6 @@ class UserProfile(models.Model):
     def __str__(self):
         return self.user.username
 
-    def getKiteInstance(self) -> KiteConnect:
+    @property
+    def kite(self) -> KiteConnect:
         return KiteConnect(self.api_key, self.access_token)

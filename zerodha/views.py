@@ -68,7 +68,7 @@ class MarketOrderBuy(APIView):
     def post(self, request):
         data = request.data
         try:
-            kite_ = request.user.userprofile.getKiteInstance()
+            kite_ = request.user.userprofile.kite
 
             if data['exchange'] == 'NFO':
                 exchange = kite_.EXCHANGE_NFO
@@ -109,7 +109,7 @@ class MarketOrderSell(APIView):
     def post(self, request):
         data = request.data
         try:
-            kite_ = request.user.userprofile.getKiteInstance()
+            kite_ = request.user.userprofile.kite
 
             if data['exchange'] == 'NFO':
                 exchange = kite_.EXCHANGE_NFO
@@ -168,7 +168,7 @@ class LimitOrderBuy(APIView):
     def post(self, request):
         data = request.data
         try:
-            kite_ = request.user.userprofile.getKiteInstance()
+            kite_ = request.user.userprofile.kite
 
             if data['exchange'] == 'NFO':
                 exchange = kite_.EXCHANGE_NFO
@@ -210,7 +210,7 @@ class LimitOrderSell(APIView):
     def post(self, request):
         data = request.data
         try:
-            kite_ = request.user.userprofile.getKiteInstance()
+            kite_ = request.user.userprofile.kite
 
             if data['exchange'] == 'NFO':
                 exchange = kite_.EXCHANGE_NFO

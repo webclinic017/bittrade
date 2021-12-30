@@ -28,7 +28,7 @@ class OrderResult:
 
 class OrderExecutor:
     def __init__(self, userprofile: UserProfile):
-        self.kite = userprofile.getKiteInstance()
+        self.kite = userprofile.kite
         self.order_func = {
             OrderType.MARKET_ORDER_BUY: self.__placeMarketBuyOrder,
             OrderType.MARKET_ORDER_SELL: self.__placeMarketSellOrder,
