@@ -1,3 +1,4 @@
+from entities.streamer import KiteStreamer
 from entities.trade import Trade
 from entities.trade import OrderType
 from users.models import UserProfile
@@ -29,6 +30,8 @@ class OrderResult:
 class OrderExecutor:
     def __init__(self, userprofile: UserProfile):
         self.kite = userprofile.kite
+        self.streamer = KiteStreamer(self.kite)
+
         self.order_func = {
             OrderType.MARKET_ORDER_BUY: self.__placeMarketBuyOrder,
             OrderType.MARKET_ORDER_SELL: self.__placeMarketSellOrder,

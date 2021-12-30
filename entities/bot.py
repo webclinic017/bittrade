@@ -30,9 +30,8 @@ class TradeBot(OrderExecutor):
     def __enterTrade(self, trade: Trade) -> OrderResult:
         # check for the margins and then execute the trade
         price = trade.price * trade.quantity
-        margins = self.kite.margins()
 
-        if price < margins["equity"]["available"]["live_balance"]:
+        if price < self.streamer.margins.equity.available.live_balance:
             order = self.placeOrderSync(trade)
         else:
             raise InsufficentMarginsException
@@ -41,13 +40,11 @@ class TradeBot(OrderExecutor):
 
     def __exitTrade(self, trade: Trade) -> OrderResult:
         # search for the trade in the positions and then exit
-        positions = self.kite.positions()
-
         is_present = False
-        for position in positions["net"]:
-            if position["tradingsymbol"] == trade.trading_symbol and position["quantity"] > 0:
+        for position in self.streamer.positions.net:
+            if position.tradingsymbol == trade.trading_symbol and position.quantity > 0:
                 is_present = True
-                trade.quantity = position['quantity']
+                trade.quantity = position.quantity
                 break
 
         if is_present:
