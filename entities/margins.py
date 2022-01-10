@@ -33,19 +33,19 @@ class UtilisedMarginType:
 
 
 class Equity:
-    def __init__(self, enabled: bool, net: float, available: AvailableMarginType, utilized: UtilisedMarginType) -> None:
+    def __init__(self, enabled: bool, net: float, available: AvailableMarginType, utilised: UtilisedMarginType) -> None:
         self.enabled = enabled = enabled
         self.net = net
         self.available = available
-        self.utilized = utilized
+        self.utilised = utilised
 
 
 class Commodity:
-    def __init__(self, enabled: bool, net: float, available: AvailableMarginType, utilized: UtilisedMarginType) -> None:
+    def __init__(self, enabled: bool, net: float, available: AvailableMarginType, utilised: UtilisedMarginType) -> None:
         self.enabled = enabled
         self.net = net
         self.available = available
-        self.utilized = utilized
+        self.utilised = utilised
 
 
 class Margins:
@@ -60,16 +60,16 @@ class Margins:
                 margins["equity"]["available"]["intraday_payin"],
                 margins["equity"]["available"]["live_balance"]
             ),
-            utilized=UtilisedMarginType(
-                margins["equity"]["utilized"]["debits"],
-                margins["equity"]["utilized"]["exposure"],
-                margins["equity"]["utilized"]["m2m_relised"],
-                margins["equity"]["utilized"]["m2m_unrelised"],
-                margins["equity"]["utilized"]["option_premium"],
-                margins["equity"]["utilized"]["payout"],
-                margins["equity"]["utilized"]["span"],
-                margins["equity"]["utilized"]["holding_sales"],
-                margins["equity"]["utilized"]["turnover"],
+            utilised=UtilisedMarginType(
+                margins["equity"]["utilised"]["debits"],
+                margins["equity"]["utilised"]["exposure"],
+                margins["equity"]["utilised"]["m2m_relised"],
+                margins["equity"]["utilised"]["m2m_unrelised"],
+                margins["equity"]["utilised"]["option_premium"],
+                margins["equity"]["utilised"]["payout"],
+                margins["equity"]["utilised"]["span"],
+                margins["equity"]["utilised"]["holding_sales"],
+                margins["equity"]["utilised"]["turnover"],
             )
         )
         self.commodity = Commodity(
@@ -82,16 +82,16 @@ class Margins:
                 margins["commodity"]["available"]["intraday_payin"],
                 margins["commodity"]["available"]["live_balance"]
             ),
-            utilized=UtilisedMarginType(
-                margins["commodity"]["utilized"]["debits"],
-                margins["commodity"]["utilized"]["exposure"],
-                margins["commodity"]["utilized"]["m2m_relised"],
-                margins["commodity"]["utilized"]["m2m_unrelised"],
-                margins["commodity"]["utilized"]["option_premium"],
-                margins["commodity"]["utilized"]["payout"],
-                margins["commodity"]["utilized"]["span"],
-                margins["commodity"]["utilized"]["holding_sales"],
-                margins["commodity"]["utilized"]["turnover"],
+            utilised=UtilisedMarginType(
+                margins["commodity"]["utilised"]["debits"],
+                margins["commodity"]["utilised"]["exposure"],
+                margins["commodity"]["utilised"]["m2m_relised"],
+                margins["commodity"]["utilised"]["m2m_unrelised"],
+                margins["commodity"]["utilised"]["option_premium"],
+                margins["commodity"]["utilised"]["payout"],
+                margins["commodity"]["utilised"]["span"],
+                margins["commodity"]["utilised"]["holding_sales"],
+                margins["commodity"]["utilised"]["turnover"],
             )
 
         )
