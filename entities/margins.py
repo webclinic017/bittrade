@@ -6,13 +6,6 @@ class AvailableMarginType:
         self.intraday_payin = intraday_payin
         self.live_balance = live_balance
 
-    def __init__(self):
-        self.adhoc_margin = None
-        self.cash = None
-        self.collateral = None
-        self.intraday_payin = None
-        self.live_balance = None
-
 
 class UtilisedMarginType:
     def __init__(
@@ -38,17 +31,6 @@ class UtilisedMarginType:
         self.holding_sales = holding_sales
         self.turnover = turnover
 
-    def __init__(self):
-        self.debits = None
-        self.exposure = None
-        self.m2m_relised = None
-        self.m2m_unrealised = None
-        self.option_premium = None
-        self.payout = None
-        self.span = None
-        self.holding_sales = None
-        self.turnover = None
-
 
 class Equity:
     def __init__(self, enabled: bool, net: float, available: AvailableMarginType, utilized: UtilisedMarginType) -> None:
@@ -57,16 +39,10 @@ class Equity:
         self.available = available
         self.utilized = utilized
 
-    def __init__(self):
-        self.enabled = None
-        self.net = None
-        self.available = None
-        self.utilized = None
-
 
 class Commodity:
     def __init__(self, enabled: bool, net: float, available: AvailableMarginType, utilized: UtilisedMarginType) -> None:
-        self.enabled = enabled = enabled
+        self.enabled = enabled
         self.net = net
         self.available = available
         self.utilized = utilized
@@ -74,66 +50,50 @@ class Commodity:
 
 class Margins:
     def __init__(self, margins: dict):
-        self.equity = Equity()
-        self.commodity = Commodity()
+        self.equity = Equity(
+            enabled=margins["equity"]["enabled"],
+            net=margins["equity"]["net"],
+            available=AvailableMarginType(
+                margins["equity"]["available"]["adhoc_margin"],
+                margins["equity"]["available"]["cash"],
+                margins["equity"]["available"]["collateral"],
+                margins["equity"]["available"]["intraday_payin"],
+                margins["equity"]["available"]["live_balance"]
+            ),
+            utilized=UtilisedMarginType(
+                margins["equity"]["utilized"]["debits"],
+                margins["equity"]["utilized"]["exposure"],
+                margins["equity"]["utilized"]["m2m_relised"],
+                margins["equity"]["utilized"]["m2m_unrelised"],
+                margins["equity"]["utilized"]["option_premium"],
+                margins["equity"]["utilized"]["payout"],
+                margins["equity"]["utilized"]["span"],
+                margins["equity"]["utilized"]["holding_sales"],
+                margins["equity"]["utilized"]["turnover"],
+            )
+        )
+        self.commodity = Commodity(
+            enabled=margins["commodity"]["enabled"],
+            net=margins["commodity"]["net"],
+            available=AvailableMarginType(
+                margins["commodity"]["available"]["adhoc_margin"],
+                margins["commodity"]["available"]["cash"],
+                margins["commodity"]["available"]["collateral"],
+                margins["commodity"]["available"]["intraday_payin"],
+                margins["commodity"]["available"]["live_balance"]
+            ),
+            utilized=UtilisedMarginType(
+                margins["commodity"]["utilized"]["debits"],
+                margins["commodity"]["utilized"]["exposure"],
+                margins["commodity"]["utilized"]["m2m_relised"],
+                margins["commodity"]["utilized"]["m2m_unrelised"],
+                margins["commodity"]["utilized"]["option_premium"],
+                margins["commodity"]["utilized"]["payout"],
+                margins["commodity"]["utilized"]["span"],
+                margins["commodity"]["utilized"]["holding_sales"],
+                margins["commodity"]["utilized"]["turnover"],
+            )
+
+        )
 
         self.data = margins
-
-        self.equity.enabled = margins["equity"]["enabled"]
-        self.equity.net = margins["equity"]["net"]
-
-        self.equity.available = AvailableMarginType(
-            margins["equity"]["available"]["adhoc_margin"],
-            margins["equity"]["available"]["cash"],
-            margins["equity"]["available"]["collateral"],
-            margins["equity"]["available"]["intraday_payin"],
-            margins["equity"]["available"]["live_balance"]
-        )
-
-        self.equity.utilized = UtilisedMarginType(
-            margins["equity"]["utilized"]["debits"],
-            margins["equity"]["utilized"]["exposure"],
-            margins["equity"]["utilized"]["m2m_relised"],
-            margins["equity"]["utilized"]["m2m_unrelised"],
-            margins["equity"]["utilized"]["option_premium"],
-            margins["equity"]["utilized"]["payout"],
-            margins["equity"]["utilized"]["span"],
-            margins["equity"]["utilized"]["holding_sales"],
-            margins["equity"]["utilized"]["turnover"],
-        )
-
-        self.commodity.enabled = margins["commodity"]["enabled"]
-        self.commodity.net = margins["commodity"]["net"]
-
-        self.commodity.available = AvailableMarginType(
-            margins["commodity"]["available"]["adhoc_margin"],
-            margins["commodity"]["available"]["cash"],
-            margins["commodity"]["available"]["collateral"],
-            margins["commodity"]["available"]["intraday_payin"],
-            margins["commodity"]["available"]["live_balance"]
-        )
-
-        self.commodity.utilized = UtilisedMarginType(
-            margins["commodity"]["utilized"]["debits"],
-            margins["commodity"]["utilized"]["exposure"],
-            margins["commodity"]["utilized"]["m2m_relised"],
-            margins["commodity"]["utilized"]["m2m_unrelised"],
-            margins["commodity"]["utilized"]["option_premium"],
-            margins["commodity"]["utilized"]["payout"],
-            margins["commodity"]["utilized"]["span"],
-            margins["commodity"]["utilized"]["holding_sales"],
-            margins["commodity"]["utilized"]["turnover"],
-        )
-
-    def __init__(self):
-        self.equity = None
-        self.commodity = None
-        self.data = None
-        self.equity.enabled = None
-        self.equity.net = None
-        self.equity.available = None
-        self.equity.utilized = None
-        self.commodity.enabled = None
-        self.commodity.net = None
-        self.commodity.available = None
-        self.commodity.utilized = None
