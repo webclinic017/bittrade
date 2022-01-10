@@ -12,7 +12,7 @@ class UtilisedMarginType:
         self,
         debits: float,
         exposure: float,
-        m2m_relised: float,
+        m2m_realised: float,
         m2m_unrelised: float,
         option_premium: float,
         payout: float,
@@ -23,7 +23,7 @@ class UtilisedMarginType:
 
         self.debits = debits
         self.exposure = exposure
-        self.m2m_relised = m2m_relised
+        self.m2m_realised = m2m_realised
         self.m2m_unrealised = m2m_unrelised
         self.option_premium = option_premium
         self.payout = payout
@@ -63,7 +63,7 @@ class Margins:
             utilised=UtilisedMarginType(
                 margins["equity"]["utilised"]["debits"],
                 margins["equity"]["utilised"]["exposure"],
-                margins["equity"]["utilised"]["m2m_relised"],
+                margins["equity"]["utilised"]["m2m_realised"],
                 margins["equity"]["utilised"]["m2m_unrelised"],
                 margins["equity"]["utilised"]["option_premium"],
                 margins["equity"]["utilised"]["payout"],
@@ -85,7 +85,7 @@ class Margins:
             utilised=UtilisedMarginType(
                 margins["commodity"]["utilised"]["debits"],
                 margins["commodity"]["utilised"]["exposure"],
-                margins["commodity"]["utilised"]["m2m_relised"],
+                margins["commodity"]["utilised"]["m2m_realised"],
                 margins["commodity"]["utilised"]["m2m_unrelised"],
                 margins["commodity"]["utilised"]["option_premium"],
                 margins["commodity"]["utilised"]["payout"],
