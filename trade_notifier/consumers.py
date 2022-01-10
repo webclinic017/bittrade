@@ -131,6 +131,7 @@ class OrderConsumer(AsyncJsonWebsocketConsumer):
 
     # error handler for the websocket
     async def on_error(self, error):
+        print(error)
         await self.send_json({"error": str(error)})
 
     async def execute_safe(self, func, *args) -> Tuple[OrderResult, bool]:
@@ -168,5 +169,8 @@ class OrderConsumer(AsyncJsonWebsocketConsumer):
         trade = Trade(content)
         order, success = await self.execute_safe(self.bot.execTrade, trade)
 
+        if order:
+            print(order.toJSON())
+
         if success:
-            await self.send_json(order.toDict())
+            await self.send_json(order.JSON())

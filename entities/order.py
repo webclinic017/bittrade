@@ -21,6 +21,9 @@ class OrderResult:
     def toDict(self):
         return self.__dict__
 
+    def toJSON(self):
+        return {"orderid": self.order_id, "type": self.order_type.value}
+
 
 '''
     OrderExecutor is used to execute the Market and Limit Orders
