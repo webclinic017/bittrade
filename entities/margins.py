@@ -6,6 +6,13 @@ class AvailableMarginType:
         self.intraday_payin = intraday_payin
         self.live_balance = live_balance
 
+    def __init__(self):
+        self.adhoc_margin = None
+        self.cash = None
+        self.collateral = None
+        self.intraday_payin = None
+        self.live_balance = None
+
 
 class UtilisedMarginType:
     def __init__(
@@ -31,6 +38,17 @@ class UtilisedMarginType:
         self.holding_sales = holding_sales
         self.turnover = turnover
 
+    def __init__(self):
+        self.debits = None
+        self.exposure = None
+        self.m2m_relised = None
+        self.m2m_unrealised = None
+        self.option_premium = None
+        self.payout = None
+        self.span = None
+        self.holding_sales = None
+        self.turnover = None
+
 
 class Equity:
     def __init__(self, enabled: bool, net: float, available: AvailableMarginType, utilized: UtilisedMarginType) -> None:
@@ -38,6 +56,12 @@ class Equity:
         self.net = net
         self.available = available
         self.utilized = utilized
+
+    def __init__(self):
+        self.enabled = None
+        self.net = None
+        self.available = None
+        self.utilized = None
 
 
 class Commodity:
@@ -100,3 +124,16 @@ class Margins:
             margins["commodity"]["utilized"]["holding_sales"],
             margins["commodity"]["utilized"]["turnover"],
         )
+
+    def __init__(self):
+        self.equity = None
+        self.commodity = None
+        self.data = None
+        self.equity.enabled = None
+        self.equity.net = None
+        self.equity.available = None
+        self.equity.utilized = None
+        self.commodity.enabled = None
+        self.commodity.net = None
+        self.commodity.available = None
+        self.commodity.utilized = None
