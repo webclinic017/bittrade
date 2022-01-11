@@ -134,15 +134,6 @@ class OrderConsumer(AsyncJsonWebsocketConsumer):
         print(error)
         await self.send_json({"error": str(error)})
 
-    async def execute_safe(self, func, *args) -> Tuple[OrderResult, bool]:
-        try:
-            order = func(*args)
-        except Exception as e:
-            await self.on_error(e)
-            return None, False
-        else:
-            return order, True
-
     @database_sync_to_async
     def get_user_profile(self, token):
         token = Token.objects.get(key=token)
@@ -167,12 +158,11 @@ class OrderConsumer(AsyncJsonWebsocketConsumer):
             return
 
         trade = Trade(content)
-        order, success = await self.execute_safe(self.bot.execTrade, trade)
 
-        print(order, success)
-
-        if order:
-            print(order.toJSON())
-
-        if success:
-            await self.send_json(order.JSON())
+        try:
+            order = await self.bot.execTradeAsync(trade)
+            print(order)
+            await self.send_json(order.toJSON())
+        except Exception as e:
+            await self.on_error(e)
+            return
