@@ -55,7 +55,7 @@ class TradeBot(OrderExecutor):
         return order
 
     def execTrade(self, trade: Trade) -> OrderResult:
-        self.exec_func[trade.tag](trade)
+        return self.exec_func[trade.tag](trade)
 
     async def execTradeAsync(self, trade: Trade) -> OrderResult:
         return self.execTrade(trade)
