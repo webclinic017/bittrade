@@ -36,3 +36,4 @@ class Trade:
         self.entry_price = trade["entry_price"]
         self.price = trade["price"]
         self.type = trade["type"]
+        self.max_quantity = trade.get("max_quantity", float('inf'))

@@ -1,8 +1,6 @@
-from typing import Tuple
 from channels.generic.websocket import AsyncWebsocketConsumer, AsyncJsonWebsocketConsumer
 from constants.channels import USER_CHANNEL_KEY
 from entities.bot import TradeBot
-from entities.order import OrderResult
 from entities.streamer import KiteStreamer
 from trade_notifier.utils import db
 from entities.trade import Trade

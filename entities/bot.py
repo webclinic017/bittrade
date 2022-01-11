@@ -44,7 +44,12 @@ class TradeBot(OrderExecutor):
         for position in self.streamer.positions.net:
             if position.tradingsymbol == trade.trading_symbol and position.quantity > 0:
                 is_present = True
-                trade.quantity = position.quantity
+
+                if position.quantity < trade.max_quantity:
+                    trade.quantity = position.quantity
+                else:
+                    trade.quantity = trade.max_quantity
+
                 break
 
         if is_present:
