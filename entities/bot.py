@@ -45,7 +45,7 @@ class TradeBot(OrderExecutor):
             if position.tradingsymbol == trade.trading_symbol and position.quantity > 0:
                 is_present = True
 
-                if position.quantity < trade.max_quantity:
+                if position.quantity > trade.max_quantity:
                     trade.quantity = position.quantity
                 else:
                     trade.quantity = trade.max_quantity
