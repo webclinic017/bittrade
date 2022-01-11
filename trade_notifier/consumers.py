@@ -169,6 +169,8 @@ class OrderConsumer(AsyncJsonWebsocketConsumer):
         trade = Trade(content)
         order, success = await self.execute_safe(self.bot.execTrade, trade)
 
+        print(order, success)
+
         if order:
             print(order.toJSON())
 
