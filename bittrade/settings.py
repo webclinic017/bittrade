@@ -37,14 +37,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.sites',
-    'users',
-    'zerodha',
     'django.contrib.staticfiles',
     'corsheaders',
     'rest_framework',
     'rest_framework.authtoken',
     'channels',
     'trade_notifier',
+    'users',
+    'zerodha',
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
@@ -183,4 +183,3 @@ if DEBUG:
     FRONTEND_URL = "http://localhost:3000"
 else:
     FRONTEND_URL = "https://auto-trader-2115.web.app/"
-

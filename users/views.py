@@ -71,3 +71,13 @@ class ProfileDetail(APIView):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
             return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class ZerodhaLoginUrl(APIView):
+    permission_classes = [IsAuthenticated, ]
+
+    def get(self, request):
+        login_url = request.user.userprofile.kite.login_url()
+        return Response({
+            "login_url": login_url
+        })

@@ -18,9 +18,11 @@ from zerodha.serializers import APICredentialSerializer, MarketOrderSerializer, 
 from rest_framework import generics
 from zerodha.pagenation import OrdersPagenation
 from django.conf import settings
-
+import datetime
 
 # return the request token to the user
+
+
 def zerodha_auth(request):
     return HttpResponseRedirect(settings.FRONTEND_URL + "/request_token-zerodha/" + request.GET['request_token'])
 
@@ -30,16 +32,16 @@ class ZerodhaAccessToken(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        data = request.data
-        check_validity(data)
+        userprofile = request.user.userprofile
 
-        kite = KiteConnect(api_key=data['api_key'])
+        kite = KiteConnect(api_key=userprofile.api_key)
         data_ = kite.generate_session(
-            data['request_token'],
-            data['api_secret']
+            request.data['request_token'],
+            userprofile.api_secret
         )
 
         request.user.userprofile.access_token = data_['access_token']
+        request.user.userprofile.zerodha_last_login = datetime.datetime.now()
         request.user.userprofile.save()
 
         return Response({

@@ -3,9 +3,9 @@ from .models import UserProfile
 
 
 class UserProfileSerializer(ModelSerializer):
-    
     user = ReadOnlyField(source='user.username')
-    
+    is_accesstoken_valid = ReadOnlyField()
+
     class Meta:
-        model  =  UserProfile
-        fields =  '__all__'
+        model = UserProfile
+        fields = '__all__'
