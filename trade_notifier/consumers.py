@@ -7,6 +7,7 @@ from entities.trade import Trade
 from rest_framework.authtoken.models import Token
 from channels.db import database_sync_to_async
 from users.models import UserProfile
+import kiteconnect
 
 
 class Notifier(AsyncWebsocketConsumer):
@@ -108,14 +109,22 @@ class UserData(AsyncJsonWebsocketConsumer):
                 await self.send_json({"error":  "please provide a authtoken"})
                 return
 
-        margins = await self.streamer.get_margins_async()
-        positions = await self.streamer.get_positions_async()
-        pnl = await self.streamer.get_pnl_async()
+        try:
+            margins = await self.streamer.get_margins_async()
+            positions = await self.streamer.get_positions_async()
+            pnl = await self.streamer.get_pnl_async()
+        except kiteconnect.exceptions.TokenException as e:
+            await self.send_json({
+                "error": {
+                    "status": True,
+                    "message": str(e)
+                }
+            })
 
         await self.send_json({
             "margins": margins.data,
             "positions": positions.data,
-            "pnl": pnl
+            "pnl": pnl,
         })
 
         return

@@ -32,4 +32,4 @@ class UserProfile(models.Model):
         login_period = (datetime.datetime.now() -
                         self.zerodha_last_login).seconds / (60 * 60)
 
-        return login_period <= 2
+        return login_period <= 10
