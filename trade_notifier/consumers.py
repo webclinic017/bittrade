@@ -58,10 +58,13 @@ class UserData(AsyncJsonWebsocketConsumer):
         self.profile = None
         self.token = ''
         self.streamer = None
-        self.connected_to_kite = False
+        self.group_name = ''
 
     async def disconnect(self, code):
-        db.delete(self.key)
+        self.channel_layer.group_discard(
+            self.group_name,
+            self.channel_name
+        )
 
     async def on_error(self, error):
         await self.send_json({"error": str(error)})
@@ -87,6 +90,7 @@ class UserData(AsyncJsonWebsocketConsumer):
             if "authtoken" in content:
                 # try to authenticate the user
                 profile = await self.get_user(content["authtoken"])
+                self.token = content["authtoken"]
 
                 if profile == None:
                     await self.send_json({"error": "failed to authenticate user"})
@@ -99,8 +103,9 @@ class UserData(AsyncJsonWebsocketConsumer):
                     self.token = content["authtoken"]
 
                     # add the consumer to a group with "<token>-<USER_CHANNEL_KEY>"
+                    self.group_name = str(self.profile.id) + USER_CHANNEL_KEY
                     await self.channel_layer.group_add(
-                        str(self.profile.id) + USER_CHANNEL_KEY,
+                        self.group_name,
                         self.channel_name
                     )
 
@@ -116,10 +121,6 @@ class UserData(AsyncJsonWebsocketConsumer):
             positions = await self.streamer.get_positions_async()
             pnl = await self.streamer.get_pnl_async()
         except kiteconnect.exceptions.TokenException as e:
-            if self.connected_to_kite:
-                print(self.profile.kite)
-                self.streamer = KiteStreamer(self.profile.kite)
-
             await self.send_json({
                 "error": {
                     "status": True,
@@ -139,7 +140,8 @@ class UserData(AsyncJsonWebsocketConsumer):
 
     async def update_streamer(self, event):
         print('updating the streamer....')
-        self.connected_to_kite = True
+        self.profile = await self.get_user(self.token)
+        self.streamer = KiteStreamer(self.profile.kite)
 
 
 class OrderConsumer(AsyncJsonWebsocketConsumer):
