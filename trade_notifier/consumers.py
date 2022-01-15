@@ -8,6 +8,7 @@ from rest_framework.authtoken.models import Token
 from channels.db import database_sync_to_async
 from users.models import UserProfile
 import kiteconnect
+import asyncio
 
 
 class Notifier(AsyncWebsocketConsumer):
@@ -104,10 +105,12 @@ class UserData(AsyncJsonWebsocketConsumer):
                         self.channel_name
                     )
 
-                    return
             else:
                 await self.send_json({"error":  "please provide a authtoken"})
                 return
+
+        if self.streamer is None:
+            return
 
         try:
             margins = await self.streamer.get_margins_async()
@@ -133,6 +136,8 @@ class UserData(AsyncJsonWebsocketConsumer):
 
     async def update_streamer(self, event):
         print('updating the streamer....')
+        await asyncio.sleep(5)
+
         self.streamer = KiteStreamer(
             self.profile.kite
         )
