@@ -138,6 +138,9 @@ class UserData(AsyncJsonWebsocketConsumer):
         print('updating the streamer....')
         await asyncio.sleep(5)
 
+        print(self.profile)
+        print(self.profile.kite)
+
         self.streamer = KiteStreamer(
             self.profile.kite
         )
