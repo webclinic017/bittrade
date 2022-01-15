@@ -17,7 +17,9 @@ from rest_framework import generics
 from zerodha.pagenation import OrdersPagenation
 from django.conf import settings
 import datetime
-
+from channels.layers import get_channel_layer
+from constants.channels import USER_CHANNEL_KEY
+from asgiref.sync import async_to_sync
 # return the request token to the user
 
 
@@ -42,6 +44,13 @@ class ZerodhaAccessToken(APIView):
         request.user.userprofile.zerodha_last_login = datetime.datetime.now()
         request.user.userprofile.save()
 
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            str(request.user.profile.id) + USER_CHANNEL_KEY,
+            {
+                "type": "update.streamer"
+            }
+        )
         return Response({
             'access_token': data_['access_token']
         }, status=status.HTTP_200_OK)

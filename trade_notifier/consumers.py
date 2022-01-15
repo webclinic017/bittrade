@@ -100,7 +100,7 @@ class UserData(AsyncJsonWebsocketConsumer):
 
                     # add the consumer to a group with "<token>-<USER_CHANNEL_KEY>"
                     await self.channel_layer.group_add(
-                        self.token + USER_CHANNEL_KEY,
+                        str(self.profile.id) + USER_CHANNEL_KEY,
                         self.channel_name
                     )
 
@@ -130,6 +130,11 @@ class UserData(AsyncJsonWebsocketConsumer):
         })
 
         return
+
+    def update_streamer(self, event):
+        self.streamer = KiteStreamer(
+            self.profile.kite
+        )
 
 
 class OrderConsumer(AsyncJsonWebsocketConsumer):
