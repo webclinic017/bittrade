@@ -121,6 +121,8 @@ class UserData(AsyncJsonWebsocketConsumer):
                 }
             })
 
+            return
+
         await self.send_json({
             "margins": margins.data,
             "positions": positions.data,
