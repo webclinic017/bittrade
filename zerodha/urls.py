@@ -11,10 +11,5 @@ urlpatterns = [
     path('place/limit_order/buy', views.LimitOrderBuy.as_view()),
     path('place/limit_order/sell', views.LimitOrderSell.as_view()),
     path('pnl/', views.PnlAPI.as_view()),
-    path('orders/market', views.UsersMarketOrderListAPI.as_view()),
-    path('orders/limit', views.UsersLimitOrderListAPI.as_view()),
     path('margins/', views.MarginsAPI.as_view()),
-    path('positions', views.PositionsListAPI.as_view()),
-    path('position/<str:token>', views.PositionDetailAPI.as_view()),
-    path('apicredential/<str:userid>', views.APICredentialDetailView.as_view()),
 ]

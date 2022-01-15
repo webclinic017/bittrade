@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'trade_notifier',
     'users',
     'zerodha',
+    'strategy_builder',
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
@@ -85,23 +86,24 @@ ASGI_APPLICATION = 'bittrade.asgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-#     }
-# }
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'd8ukuif9cis86b',
-        'USER': 'yezbhmgngwitlf',
-        'PASSWORD': '8148be9c46204f98cf8e3ce4f6a2eadc4189c941bf889d943812055c5aabab38',
-        'HOST': 'ec2-52-0-67-144.compute-1.amazonaws.com',
-        'PORT': 5432,
+if DEBUG:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'd8ukuif9cis86b',
+            'USER': 'yezbhmgngwitlf',
+            'PASSWORD': '8148be9c46204f98cf8e3ce4f6a2eadc4189c941bf889d943812055c5aabab38',
+            'HOST': 'ec2-52-0-67-144.compute-1.amazonaws.com',
+            'PORT': 5432,
+        }
+    }
 
 
 # Channel layer
