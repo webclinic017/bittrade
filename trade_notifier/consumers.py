@@ -54,12 +54,11 @@ class InternationNotifier(Notifier):
 class UserData(AsyncJsonWebsocketConsumer):
     async def connect(self):
         await self.accept()
-        self.counter = 0
-        self.key = ''
 
         self.profile = None
         self.token = ''
         self.streamer = None
+        self.connected_to_kite = False
 
     async def disconnect(self, code):
         db.delete(self.key)
@@ -117,6 +116,10 @@ class UserData(AsyncJsonWebsocketConsumer):
             positions = await self.streamer.get_positions_async()
             pnl = await self.streamer.get_pnl_async()
         except kiteconnect.exceptions.TokenException as e:
+            if self.connected_to_kite:
+                print(self.profile.kite)
+                self.streamer = KiteStreamer(self.profile.kite)
+
             await self.send_json({
                 "error": {
                     "status": True,
@@ -136,14 +139,7 @@ class UserData(AsyncJsonWebsocketConsumer):
 
     async def update_streamer(self, event):
         print('updating the streamer....')
-        await asyncio.sleep(5)
-
-        print(self.profile)
-        print(self.profile.kite)
-
-        self.streamer = KiteStreamer(
-            self.profile.kite
-        )
+        self.connected_to_kite = True
 
 
 class OrderConsumer(AsyncJsonWebsocketConsumer):
