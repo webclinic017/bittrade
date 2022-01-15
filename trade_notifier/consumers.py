@@ -131,7 +131,7 @@ class UserData(AsyncJsonWebsocketConsumer):
 
         return
 
-    def update_streamer(self, event):
+    async def update_streamer(self, event):
         self.streamer = KiteStreamer(
             self.profile.kite
         )
