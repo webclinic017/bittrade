@@ -48,7 +48,8 @@ class ZerodhaAccessToken(APIView):
         async_to_sync(channel_layer.group_send)(
             str(request.user.userprofile.id) + USER_CHANNEL_KEY,
             {
-                "type": "update.streamer"
+                "type": "update.streamer",
+                "message": ""
             }
         )
         return Response({
