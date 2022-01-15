@@ -16,10 +16,10 @@ from .functions import (
 from rest_framework import generics
 from zerodha.pagenation import OrdersPagenation
 from django.conf import settings
-import datetime
 from channels.layers import get_channel_layer
 from constants.channels import USER_CHANNEL_KEY
 from asgiref.sync import async_to_sync
+from django.utils.timezone import now
 # return the request token to the user
 
 
@@ -41,7 +41,7 @@ class ZerodhaAccessToken(APIView):
         )
 
         request.user.userprofile.access_token = data_['access_token']
-        request.user.userprofile.zerodha_last_login = datetime.datetime.now()
+        request.user.userprofile.zerodha_last_login = now()
         request.user.userprofile.save()
 
         channel_layer = get_channel_layer()
@@ -52,6 +52,7 @@ class ZerodhaAccessToken(APIView):
                 "message": ""
             }
         )
+
         return Response({
             'access_token': data_['access_token']
         }, status=status.HTTP_200_OK)
