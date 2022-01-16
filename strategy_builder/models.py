@@ -45,6 +45,7 @@ class Strategy(models.Model):
 
     profit_percent = models.FloatField()
     loss_percent = models.FloatField()
+    lot_size = models.IntegerField(default=1)
 
     def __str__(self):
         return self.name
