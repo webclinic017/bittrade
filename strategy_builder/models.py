@@ -34,6 +34,20 @@ class Node(models.Model):
     def evaluate(self, ticker: str):
         return self.evaluate_helper(self, ticker)
 
+    @classmethod
+    def from_dict(cls, data: dict) -> Node:
+        node = cls(data['type'], data['value'])
+
+        if 'left_child' in data:
+            node.left_child = cls.from_dict(data['left_child'])
+
+        if 'right_child' in data:
+            node.right_child = cls.from_dict(data['right_child'])
+
+        node.save()
+
+        return node
+
 
 class Strategy(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
