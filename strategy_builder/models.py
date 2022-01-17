@@ -63,3 +63,13 @@ class Strategy(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class StrategyTicker(models.Model):
+    ticker = models.CharField(max_length=200)
+    exchange = models.CharField(max_length=10)
+    strategy = models.ForeignKey(
+        Strategy, on_delete=models.CASCADE, related_name='strategy_tickers')
+
+    def __str__(self):
+        return self.strategy.name + f'[{self.exchange}:{self.ticker}]'
