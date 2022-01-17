@@ -35,7 +35,7 @@ class Node(models.Model):
         return self.evaluate_helper(self, ticker)
 
     @classmethod
-    def from_dict(cls, data: dict) -> Node:
+    def from_dict(cls, data: dict):
         node = cls(data['type'], data['value'])
 
         if 'left_child' in data:
