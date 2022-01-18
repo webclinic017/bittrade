@@ -3,8 +3,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
-
-from strategy_builder.models import Node, Strategy
+from strategy_builder.models import Node, Strategy, StrategyTicker
 
 
 # Create your views here.
@@ -20,6 +19,17 @@ class CreateStrategy(APIView):
                 profit_percent=request.data['profit_percent'],
                 user=request.user
             )
+
+            tickers = request.data['tickers'].split(',')
+
+            for _ticker in tickers:
+                exchange, ticker = _ticker.strip().split(':')
+                StrategyTicker.objects.create(
+                    ticker=ticker,
+                    exchange=exchange,
+                    strategy=strategy,
+                )
+
         except Exception as e:
             return Response({"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
