@@ -19,6 +19,7 @@ class CreateStrategy(APIView):
                 profit_percent=request.data['profit_percent'],
                 user=request.user
             )
+            strategy.save()
 
             tickers = request.data['tickers'].split(',')
 
@@ -42,7 +43,7 @@ class CreateStrategy(APIView):
 
             strategy.save()
 
-            response_status = status.HTTP_201_OK
+            response_status = status.HTTP_201_CREATED
             response_message = {'message': 'created strategy successfully'}
         else:
             response_status = status.HTTP_500_INTERNAL_SERVER_ERROR

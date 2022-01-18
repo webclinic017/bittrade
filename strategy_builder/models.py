@@ -36,7 +36,7 @@ class Node(models.Model):
 
     @classmethod
     def from_dict(cls, data: dict):
-        node = cls(data['type'], data['value'])
+        node = cls(node_type=data['type'], value=data['value'])
 
         if 'left_child' in data:
             node.left_child = cls.from_dict(data['left_child'])
