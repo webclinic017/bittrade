@@ -46,10 +46,9 @@ class ZerodhaAccessToken(APIView):
 
         channel_layer = get_channel_layer()
         async_to_sync(channel_layer.group_send)(
-            str(request.user.userprofile.id) + USER_CHANNEL_KEY,
+            'USER_PROFILE_' + str(request.user.userprofile.id),
             {
-                "type": "update.streamer",
-                "message": ""
+                "type": "update.user.profile"
             }
         )
 
@@ -271,13 +270,12 @@ class LimitOrderSell(APIView):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-# calculate the pnl
 class PnlAPI(APIView):
     permission_classes = [IsAuthenticated, ]
 
-    def post(self, request):
+    def get(self, request):
         sum = 0
-        kite = check_authorization(request.data)
+        kite = request.user.userprofile.kite
         positions = kite.positions()
         for pos in positions['net']:
             pnl = pos['pnl']
@@ -287,13 +285,22 @@ class PnlAPI(APIView):
             'pnl': sum
         })
 
-# get the margins
-
 
 class MarginsAPI(APIView):
     permission_classes = [IsAuthenticated, ]
 
-    def post(self, request):
-        kite = check_authorization(request.data)
+    def get(self, request):
+        kite = request.user.userprofile.kite
         margins = kite.margins()
+
         return Response(margins, status=status.HTTP_200_OK)
+
+
+class PositionsAPI(APIView):
+    permission_classes = [IsAuthenticated, ]
+
+    def get(self, request):
+        kite = request.user.userprofile.kite
+        positions = kite.positions()
+
+        return Response(positions, status=status.HTTP_200_OK)

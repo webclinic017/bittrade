@@ -4,9 +4,13 @@ from kiteconnect.connect import KiteConnect
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.exceptions import APIException
 from rest_framework import status
 from .serializers import UserProfileSerializer
 from .models import UserProfile
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
+from rest_framework.authtoken.models import Token
 
 
 class IsLoggedIn(APIView):
@@ -35,18 +39,22 @@ class ProfileDetail(APIView):
         try:
             serializer = UserProfileSerializer(request.user.userprofile)
         except:
-            return Response({
-                'message': 'please update your profile'
-            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        else:
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            raise APIException("profile dosent exist",
+                               status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class ZerodhaLoginUrl(APIView):
     permission_classes = [IsAuthenticated, ]
 
     def get(self, request):
-        login_url = request.user.userprofile.kite.login_url()
+        try:
+            login_url = request.user.userprofile.kite.login_url()
+        except:
+            raise APIException("profile dosent exist",
+                               status.HTTP_500_INTERNAL_SERVER_ERROR)
+
         return Response({
             "login_url": login_url
         })

@@ -29,7 +29,9 @@ class UserProfile(models.Model):
 
     @property
     def is_accesstoken_valid(self) -> bool:
-        login_period = (now() -
-                        self.zerodha_last_login).seconds / (60 * 60)
+        try:
+            self.kite.profile()
+        except:
+            return False
 
-        return login_period <= 10
+        return True
