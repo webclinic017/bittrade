@@ -4,18 +4,30 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from rest_framework.exceptions import APIException
+from rest_framework.generics import ListAPIView
 from strategy_builder.models import Node, Strategy, StrategyTicker
 from entities.strategy_builder import TreeNodeValidator
-
+from threading import Thread
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
+from strategy_builder.serializers import StrategySerializer
 # Create your views here.
+
+
+class StrategyList(ListAPIView):
+    permission_classes = [IsAuthenticated, ]
+    serializer_class = StrategySerializer
+
+    def get_queryset(self):
+        return self.request.user.strategy_list.all()
 
 
 class CreateStrategy(APIView):
     permission_classes = [IsAuthenticated, ]
 
     def post(self, request: Request) -> Response:
-        exit_tree = TreeNodeValidator.from_dict(data['exit']['root'])
-        entry_tree = TreeNodeValidator.from_dict(data['entry']['root'])
+        exit_tree = TreeNodeValidator.from_dict(request.data['exit']['root'])
+        entry_tree = TreeNodeValidator.from_dict(request.data['entry']['root'])
 
         if not(TreeNodeValidator.is_complete_binary_tree(entry_tree)):
             raise APIException("invalid entry exception",
@@ -63,5 +75,12 @@ class CreateStrategy(APIView):
         else:
             raise APIException('unable to create strategy',
                                code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        tickers = list(map(lambda x: x.split(':')[1], tickers))
+        channel_layer = get_channel_layer()
+        Thread(target=async_to_sync(channel_layer.group_send), args=['USER_PROFILE_'+str(request.user.userprofile.id), {
+            "type": "user.subscribe.tickers",
+            "message": tickers
+        }]).start()
 
         return Response(response_message, status=response_status)
