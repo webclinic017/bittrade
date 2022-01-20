@@ -14,7 +14,7 @@ class TreeNodeValidator:
 
     @classmethod
     def from_dict(cls, data: dict):
-        node = cls(value=data['value'], node_type=data['node_type'])
+        node = cls(value=data['value'], node_type=data['type'])
 
         if 'left_child' in data:
             node.left_child = cls.from_dict(data['left_child'])
