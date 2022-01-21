@@ -20,6 +20,7 @@ from channels.layers import get_channel_layer
 from constants.channels import USER_CHANNEL_KEY
 from asgiref.sync import async_to_sync
 from django.utils.timezone import now
+from threading import Thread
 # return the request token to the user
 
 
@@ -45,12 +46,12 @@ class ZerodhaAccessToken(APIView):
         request.user.userprofile.save()
 
         channel_layer = get_channel_layer()
-        async_to_sync(channel_layer.group_send)(
+        Thread(target=async_to_sync(channel_layer.group_send), args=(
             'USER_PROFILE_' + str(request.user.userprofile.id),
             {
                 "type": "update.user.profile"
             }
-        )
+        )).start()
 
         return Response({
             'access_token': data_['access_token']

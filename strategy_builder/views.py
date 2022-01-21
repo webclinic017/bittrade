@@ -84,3 +84,37 @@ class CreateStrategy(APIView):
         }]).start()
 
         return Response(response_message, status=response_status)
+
+
+class ToggleStrategy(APIView):
+    permission_classes = [IsAuthenticated, ]
+
+    def patch(self, request, pk):
+        try:
+            strategy = request.user.strategy_list.get(pk=pk)
+        except:
+            raise APIException(
+                f"strategy with id {pk} not found for the user", code=status.HTTP_404_NOT_FOUND)
+
+        strategy.enabled = not(strategy.enabled)
+        strategy.save()
+
+        return Response({
+            "message": "strategy updated successfully",
+        }, status=status.HTTP_200_OK)
+
+
+class DeleteStrategy(APIView):
+    permission_classes = [IsAuthenticated, ]
+
+    def delete(self, request, pk):
+        try:
+            strategy = request.user.strategy_list.get(pk=pk)
+
+            strategy.entry_node.delete()
+            strategy.exit_node.delete()
+        except:
+            raise APIException(
+                f"failed to delete strategy with id {pk}", code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        return Response({"message": "deleted successfully"}, status=status.HTTP_200_OK)
