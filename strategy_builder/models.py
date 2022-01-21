@@ -50,7 +50,8 @@ class Node(models.Model):
 
 
 class Strategy(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='strategy_list')
     name = models.CharField(max_length=200)
     entry_node = models.ForeignKey(
         Node, on_delete=models.CASCADE, null=True, blank=True, related_name='strategies_enrties')
@@ -60,6 +61,8 @@ class Strategy(models.Model):
     profit_percent = models.FloatField()
     loss_percent = models.FloatField()
     lot_size = models.IntegerField(default=1)
+
+    enabled = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name
