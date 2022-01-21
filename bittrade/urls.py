@@ -18,7 +18,7 @@ from django.urls import path, include
 from .views import index, TokenAuthenticationView
 
 urlpatterns = [
-    path('', include('zerodha.urls')),
+    path('zerodha/', include('zerodha.urls')),
     path('users/', include('users.urls')),
     path('strategy_builder/', include('strategy_builder.urls')),
     path('admin/', admin.site.urls),

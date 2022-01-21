@@ -7,20 +7,25 @@ For more information on this file, see
 https://docs.djangoproject.com/en/3.0/howto/deployment/asgi/
 """
 
+from trade_notifier.routing import websocket_urls, event_urls
+from channels.routing import ProtocolTypeRouter, URLRouter
+from channels.auth import AuthMiddlewareStack
 import os
 from django.core.asgi import get_asgi_application
+from django.conf.urls import url
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'bittrade.settings')
 django_app = get_asgi_application()
 
-from channels.auth import AuthMiddlewareStack
-from channels.routing import ProtocolTypeRouter, URLRouter
-from trade_notifier.routing import websocket_urls
-
 
 application = ProtocolTypeRouter({
-    'http': django_app,
+    'http': URLRouter([
+        url(r'^events/', AuthMiddlewareStack(URLRouter(
+            event_urls
+        ))),
+        url(r'', django_app),
+    ]),
     'websocket': AuthMiddlewareStack(URLRouter(
         websocket_urls
-    ))
+    )),
 })

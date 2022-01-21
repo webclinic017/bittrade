@@ -58,19 +58,6 @@ class ZerodhaAccessToken(APIView):
         }, status=status.HTTP_200_OK)
 
 
-# get zerodha login url
-class ZerodhaLoginUrl(APIView):
-    def post(self, request):
-        assert 'api_key' in request.data
-        kite = KiteConnect(
-            api_key=request.data['api_key']
-        )
-
-        return Response({
-            'login_url': kite.login_url()
-        })
-
-
 # market orders
 
 class MarketOrderBuy(APIView):

@@ -32,10 +32,12 @@ class UserData(AsyncJsonWebsocketConsumer):
         self.streamer = None
         self.kite_ticker = None
         self.token_map = {}
+        self.ticker_map = {}
         self.live_data = []
 
     async def disconnect(self, code):
-        self.kite_ticker.close()
+        if self.kite_ticker:
+            self.kite_ticker.close()
 
     @database_sync_to_async
     def get_user_profile(self, token):
@@ -63,6 +65,22 @@ class UserData(AsyncJsonWebsocketConsumer):
 
         return True
 
+    @database_sync_to_async
+    def subscribe_tickers(self):
+        tokens = set()
+        strategies = self.profile.user.strategy_list.all()
+
+        for strategy in strategies:
+            # reterive all tickers here
+            strategy_tickers = strategy.strategy_tickers.all()
+
+            for strategy_ticker in strategy_tickers:
+                tokens.add(
+                    self.ticker_map[strategy_ticker.ticker]['instrument_token'])
+
+        self.kite_ticker.subscribe(list(tokens))
+        self.kite_ticker.set_mode(self.kite_ticker.MODE_QUOTE, list(tokens))
+
     def on_close(self, ws, code, reason):
         print(code, reason)
 
@@ -73,6 +91,9 @@ class UserData(AsyncJsonWebsocketConsumer):
             self.token_map[instrument['instrument_token']
                            ] = instrument
 
+            self.ticker_map[instrument['tradingsymbol']] = instrument
+
+        # get all the tickers from the users strategies and subscribe to them
         self.kite_ticker = kiteconnect.KiteTicker(
             api_key=self.profile.api_key, access_token=self.profile.access_token)
         self.kite_ticker.on_close = self.on_close
@@ -80,6 +101,9 @@ class UserData(AsyncJsonWebsocketConsumer):
         self.kite_ticker.on_ticks = self.on_ticks
 
         self.kite_ticker.connect(threaded=True)
+        await asyncio.sleep(2)
+
+        await self.subscribe_tickers()
 
     async def receive_json(self, content):
         # when auth token is received from the user end authenticate the user and save his token
@@ -112,6 +136,20 @@ class UserData(AsyncJsonWebsocketConsumer):
                         "type": "stream.tickers"
                     }
                 )
+
+    async def user_subscribe_tickers(self, event):
+        if self.kite_ticker:
+            tickers = event["message"]
+            instrument_tokens = []
+
+            for ticker in tickers:
+                instrument_tokens.append(
+                    self.ticker_map[ticker]['instrument_token']
+                )
+
+            self.kite_ticker.subscribe(instrument_tokens)
+            self.kite_ticker.set_mode(
+                self.kite_ticker.MODE_QUOTE, instrument_tokens)
 
 
 class OrderConsumer(AsyncJsonWebsocketConsumer):
