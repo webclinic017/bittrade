@@ -190,4 +190,4 @@ else:
     FRONTEND_URL = "https://auto-trader-2115.web.app/"
 
 
-DOCKER_STRATEGY_IMAGE = 'zerodha_live'
+DOCKER_STRATEGY_IMAGE = 'rohit20001221/zerodha_strategy_worker:latest'
