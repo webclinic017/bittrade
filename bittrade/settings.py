@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'users',
     'zerodha',
     'strategy_builder',
+    'strategy_worker',
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
