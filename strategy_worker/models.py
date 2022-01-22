@@ -13,7 +13,14 @@ class StrategyWorker(models.Model):
         return self.docker_container_id
 
     @property
-    def docker_container(self):
+    def container(self):
         client = docker.from_env()
 
         return client.containers.get(self.docker_container_id)
+
+    def kill_container(self):
+        try:
+            self.container.kill()
+            self.container.delete()
+        except:
+            pass
