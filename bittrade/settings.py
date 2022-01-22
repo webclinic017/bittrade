@@ -175,8 +175,10 @@ EMAIL_USE_TLS = True
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
-        # 'rest_framework.authentication.SessionAuthentication',
-    ]
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'execute_trade': '2/second'
+    }
 }
 
 ACCOUNT_EMAIL_VERIFICATION = "none"

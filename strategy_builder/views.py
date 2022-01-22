@@ -11,6 +11,7 @@ from threading import Thread
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 from strategy_builder.serializers import StrategySerializer
+from rest_framework.request import Request
 # Create your views here.
 
 
@@ -19,6 +20,9 @@ class StrategyList(ListAPIView):
     serializer_class = StrategySerializer
 
     def get_queryset(self):
+        if self.request.query_params.get('enabled') == '1':
+            return self.request.user.strategy_list.filter(enabled=True)
+
         return self.request.user.strategy_list.all()
 
 

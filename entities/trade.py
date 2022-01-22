@@ -1,5 +1,6 @@
 from enum import Enum
 from kiteconnect.connect import KiteConnect
+import sys
 
 
 class Tag(Enum):
@@ -36,4 +37,4 @@ class Trade:
         self.entry_price = trade["entry_price"]
         self.price = trade["price"]
         self.type = trade["type"]
-        self.max_quantity = trade.get("max_quantity", float('inf'))
+        self.max_quantity = trade.get("max_quantity", 10**9)
