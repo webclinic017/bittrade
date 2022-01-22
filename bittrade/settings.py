@@ -188,3 +188,6 @@ if DEBUG:
     FRONTEND_URL = "http://localhost:3000"
 else:
     FRONTEND_URL = "https://auto-trader-2115.web.app/"
+
+
+DOCKER_STRATEGY_IMAGE = 'zerodha_live'

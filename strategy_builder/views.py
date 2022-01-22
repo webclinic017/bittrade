@@ -30,6 +30,10 @@ class CreateStrategy(APIView):
     permission_classes = [IsAuthenticated, ]
 
     def post(self, request: Request) -> Response:
+        token_map = {}
+        for instrument in request.user.userprofile.kite.instruments():
+            token_map[instrument['tradingsymbol']] = instrument
+
         exit_tree = TreeNodeValidator.from_dict(request.data['exit']['root'])
         entry_tree = TreeNodeValidator.from_dict(request.data['entry']['root'])
 
@@ -59,6 +63,8 @@ class CreateStrategy(APIView):
                     ticker=ticker,
                     exchange=exchange,
                     strategy=strategy,
+                    instrument_token=token_map[ticker]['instrument_token'],
+                    lot_size=token_map[ticker]['lot_size']
                 )
 
         except Exception as e:

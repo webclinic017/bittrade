@@ -23,5 +23,6 @@ urlpatterns = [
     path('strategy_builder/', include('strategy_builder.urls')),
     path('admin/', admin.site.urls),
     path('api-token-auth/', TokenAuthenticationView.as_view()),
+    path('strategy_worker/', include('strategy_worker.urls')),
     path('', index),
 ]

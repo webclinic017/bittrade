@@ -1,5 +1,11 @@
 from rest_framework.serializers import ModelSerializer, SerializerMethodField
-from strategy_builder.models import Strategy, Node
+from strategy_builder.models import Strategy, Node, StrategyTicker
+
+
+class StrategyTickerSerializer(ModelSerializer):
+    class Meta:
+        model = StrategyTicker
+        fields = '__all__'
 
 
 class NodeSerializer(ModelSerializer):
@@ -26,6 +32,7 @@ class NodeSerializer(ModelSerializer):
 class StrategySerializer(ModelSerializer):
     entry_node = NodeSerializer()
     exit_node = NodeSerializer()
+    strategy_tickers = StrategyTickerSerializer(many=True)
 
     class Meta:
         model = Strategy

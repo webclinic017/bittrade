@@ -73,6 +73,8 @@ class StrategyTicker(models.Model):
     exchange = models.CharField(max_length=10)
     strategy = models.ForeignKey(
         Strategy, on_delete=models.CASCADE, related_name='strategy_tickers')
+    instrument_token = models.IntegerField()
+    lot_size = models.IntegerField()
 
     def __str__(self):
         return self.strategy.name + f'[{self.exchange}:{self.ticker}]'

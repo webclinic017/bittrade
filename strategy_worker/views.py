@@ -17,13 +17,19 @@ class StartStrategyContainer(APIView):
         client = docker.from_env()
         token = Token.objects.get(user=request.user).key
 
-        container = client.run(settings.DOCKER_STRATEGY_IMAGE, detach=True, environment={
+        scheme = request.is_secure() and 'https' or 'http'
+        host = request.get_host()
+        uri = f'{scheme}://{host}'
+
+        container = client.containers.run(settings.DOCKER_STRATEGY_IMAGE, detach=True, environment={
             'API_KEY': request.user.userprofile.api_key,
             'ACCESS_TOKEN': request.user.userprofile.access_token,
-            'AUTH_TOKEN': token
-        })
+            'AUTH_TOKEN': token,
+            'BITTRADE_HOST': uri
+        }, network_mode='host')
 
-        self.request.user.strateworker.docker_container_id = container.id
+        self.request.user.strategyworker.docker_container_id = container.id
+        self.request.user.strategyworker.enabled = True
         self.request.user.strategyworker.save()
 
         return Response({
@@ -42,8 +48,11 @@ class StopStrategyContainer(APIView):
         except:
             pass
 
+        self.request.user.strategyworker.enabled = False
+        self.request.user.strategyworker.save()
+
         try:
-            container.delete()
+            container.remove()
         except:
             raise APIException("failed to delete the container",
                                code=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -53,15 +62,8 @@ class StopStrategyContainer(APIView):
         }, status=status.HTTP_200_OK)
 
 
-class GetStrategyDetails(APIView):
-    '''
-        FETCH ALL THE STRATEGIES ALONG WITH TICKERS
-        THIS RESPONSE IS SEND TO `zerodha_strategy_worker` DOCKER IMAGE
-        AND ALL THE STRATEGIES ARE EXECUTED THERE IN THE CONTAINER
-    '''
+class IsStrategyWorkerEnabled(APIView):
     permission_classes = [IsAuthenticated, ]
 
-    def post(self, request):
-        return Response({
-            "strategies": []
-        })
+    def get(self, request):
+        return Response({"enabled": request.user.strategyworker.enabled}, status=status.HTTP_200_OK)
