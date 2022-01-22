@@ -98,10 +98,10 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': 'd8ukuif9cis86b',
-            'USER': 'yezbhmgngwitlf',
-            'PASSWORD': '8148be9c46204f98cf8e3ce4f6a2eadc4189c941bf889d943812055c5aabab38',
-            'HOST': 'ec2-52-0-67-144.compute-1.amazonaws.com',
+            'NAME': 'bittrade',
+            'USER': os.environ['DB_USER'],
+            'PASSWORD': os.environ['DB_PASSWORD'],
+            'HOST': os.environ['DB_HOST'],
             'PORT': 5432,
         }
     }
