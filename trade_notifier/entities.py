@@ -46,6 +46,7 @@ class SseConsumer(AsyncHttpConsumer):
             (b'Content-Type', b'text/event-stream'),
             (b"Transfer-Encoding", b"chunked"),
             (b'Access-Control-Allow-Origin', b'*'),
+            (b"X-Accel-Buffering", b"no"),
         ])
 
         await self.send_body(b'', more_body=True)
