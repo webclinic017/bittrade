@@ -10,8 +10,9 @@ from entities.strategy_builder import TreeNodeValidator
 from threading import Thread
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
-from strategy_builder.serializers import StrategySerializer
+from strategy_builder.serializers import StrategySerializer, TechenicalIndicatorSerializer
 from rest_framework.request import Request
+from strategy_builder.models import TechenicalIndicator
 # Create your views here.
 
 
@@ -128,3 +129,8 @@ class DeleteStrategy(APIView):
                 f"failed to delete strategy with id {pk}", code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         return Response({"message": "deleted successfully"}, status=status.HTTP_200_OK)
+
+
+class ListTechenicalIndicatorsAPI(ListAPIView):
+    queryset = TechenicalIndicator.objects.all()
+    serializer_class = TechenicalIndicatorSerializer

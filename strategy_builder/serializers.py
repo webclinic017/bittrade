@@ -1,5 +1,5 @@
 from rest_framework.serializers import ModelSerializer, SerializerMethodField
-from strategy_builder.models import Strategy, Node, StrategyTicker
+from strategy_builder.models import Strategy, Node, StrategyTicker, TechenicalIndicator
 
 
 class StrategyTickerSerializer(ModelSerializer):
@@ -36,4 +36,10 @@ class StrategySerializer(ModelSerializer):
 
     class Meta:
         model = Strategy
+        fields = '__all__'
+
+
+class TechenicalIndicatorSerializer(ModelSerializer):
+    class Meta:
+        model = TechenicalIndicator
         fields = '__all__'

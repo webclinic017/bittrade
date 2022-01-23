@@ -5,6 +5,16 @@ from django.contrib.postgres.fields import HStoreField
 # Create your models here.
 
 
+class TechenicalIndicator(models.Model):
+    key = models.CharField(unique=True, max_length=200)
+    name = models.CharField(max_length=200)
+    indicator_type = models.CharField(max_length=50)
+    input_string = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.key
+
+
 class Node(models.Model):
     NODE_TYPES = [
         ('indicator', 'indicator'),
