@@ -1,3 +1,5 @@
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.db import models
 from django.contrib.auth.models import User
 from kiteconnect.connect import KiteConnect
@@ -35,3 +37,19 @@ class UserProfile(models.Model):
             return False
 
         return True
+
+
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        UserProfile.objects.create(
+            user=instance,
+            api_key='.',
+            access_token='.',
+            api_secret='.',
+            max_loss=10000,
+            max_profit=10000,
+            banknifty_lot=1,
+            nifty_lot=1,
+            investment=100000,
+        )

@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.contrib.postgres.fields import HStoreField
 
 # Create your models here.
 
@@ -13,6 +14,7 @@ class Node(models.Model):
 
     node_type = models.CharField(max_length=20, choices=NODE_TYPES)
     value = models.CharField(max_length=200)
+    kwargs = HStoreField()
 
     left_child = models.ForeignKey(
         'self', on_delete=models.CASCADE, null=True, blank=True, default=None, related_name='left_children')
@@ -36,7 +38,8 @@ class Node(models.Model):
 
     @classmethod
     def from_dict(cls, data: dict):
-        node = cls(node_type=data['type'], value=data['value'])
+        node = cls(
+            node_type=data['type'], value=data['value'], kwargs=data.get("kwargs", {}))
 
         if 'left_child' in data:
             node.left_child = cls.from_dict(data['left_child'])

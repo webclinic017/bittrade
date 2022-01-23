@@ -51,7 +51,7 @@ class CreateStrategy(APIView):
                 lot_size=request.data['lot_size'],
                 loss_percent=request.data['loss_percent'],
                 profit_percent=request.data['profit_percent'],
-                user=request.user
+                user=request.user,
             )
             strategy.save()
 
