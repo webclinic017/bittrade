@@ -2,7 +2,7 @@ version: "3.3"
 
 services:
   redis_channel:
-    image: redis:alpine
+    image: redislabs/redisearch
     container_name: "redis_channel"
   publisher:
     image: rohit20001221/bittrade
