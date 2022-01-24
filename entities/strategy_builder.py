@@ -1,6 +1,7 @@
 '''
 Tree node is used for validation of the expression tree
 '''
+import redis
 from collections import deque
 
 
@@ -35,3 +36,12 @@ class TreeNodeValidator:
             return cls.is_complete_binary_tree(root.left_child) and cls.is_complete_binary_tree(root.right_child)
 
         return False
+
+
+class RedisInstrumentSearch:
+    def __init__(self):
+        self.r = redis.Redis(decode_responses=True)
+
+    def get_suggestions(self, search):
+        for suggestion in r.ft("instrument_idx").sugget("tradingsymbol", search):
+            yield r.hgetall("instrument:" + suggestion)
