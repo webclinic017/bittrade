@@ -56,8 +56,7 @@ class CreateStrategy(APIView):
             )
             strategy.save()
 
-            tickers = request.data['tickers'].split(',')
-
+            tickers = request.data['tickers']
             for _ticker in tickers:
                 exchange, ticker = _ticker.strip().split(':')
                 StrategyTicker.objects.create(
@@ -69,6 +68,8 @@ class CreateStrategy(APIView):
                 )
 
         except Exception as e:
+            strategy.delete()
+
             raise APIException(
                 str(e), code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -84,6 +85,8 @@ class CreateStrategy(APIView):
             response_status = status.HTTP_201_CREATED
             response_message = {'message': 'created strategy successfully'}
         else:
+            strategy.delete()
+
             raise APIException('unable to create strategy',
                                code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 

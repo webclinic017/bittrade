@@ -2,6 +2,7 @@ from django.http import HttpResponseRedirect
 from kiteconnect import KiteConnect
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.request import Request
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from django.conf import settings
@@ -10,6 +11,7 @@ from entities.bot import TradeBot
 from entities.trade import Trade
 from rest_framework.exceptions import APIException
 from rest_framework.throttling import UserRateThrottle
+from django.core.cache import cache
 # return the request token to the user
 
 
@@ -100,3 +102,33 @@ class ExecuteTrade(APIView):
                 str(e), code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         return Response(order.toJSON(), status=status.HTTP_200_OK)
+
+
+class Instruments(APIView):
+    permission_classes = [IsAuthenticated, ]
+
+    def get(self, request: Request):
+        param = request.query_params['key']
+
+        if param == '':
+            return Response([], status=status.HTTP_200_OK)
+
+        instruments = cache.get("instruments")
+
+        if instruments == None:
+            instruments = request.user.userprofile.kite.instruments()
+
+            instruments = list(map(lambda x: {
+                "instrument_token": x['instrument_token'],
+                "tradingsymbol": x["tradingsymbol"],
+                "exchange": x["exchange"],
+                "lot_size": x["lot_size"]
+            }, instruments))
+
+            cache.set("instruments", instruments, 60*60*12)
+
+        instruments = list(
+            filter(lambda x: param in x["tradingsymbol"], instruments))
+        print(instruments)
+
+        return Response(instruments, status=status.HTTP_200_OK)

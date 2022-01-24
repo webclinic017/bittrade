@@ -185,3 +185,13 @@ else:
 
 
 DOCKER_STRATEGY_IMAGE = 'rohit20001221/zerodha_strategy_worker:latest'
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://{redis}:{port}'.format(redis=os.environ['REDIS_CHANNEL'], port=6379),
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}

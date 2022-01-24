@@ -8,5 +8,6 @@ urlpatterns = [
     path('pnl/', views.PnlAPI.as_view()),
     path('margins/', views.MarginsAPI.as_view()),
     path('positions/', views.PositionsAPI.as_view()),
+    path('instruments/', views.Instruments.as_view()),
     path('execute_trade/', views.ExecuteTrade.as_view()),
 ]
