@@ -25,5 +25,6 @@ urlpatterns = [
     path('api-token-auth/', TokenAuthenticationView.as_view()),
     path('strategy_worker/', include('strategy_worker.urls')),
     path('notifier/', include('trade_notifier.urls')),
+    path('search/', include('search.urls')),
     path('', index),
 ]
