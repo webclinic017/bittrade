@@ -3,7 +3,6 @@ from trade_notifier.entities import Notifier
 from constants.channels import USER_CHANNEL_KEY
 from entities.bot import TradeBot
 from entities.streamer import KiteStreamer
-from trade_notifier.utils import db
 from entities.trade import Trade
 from rest_framework.authtoken.models import Token
 from channels.db import database_sync_to_async
