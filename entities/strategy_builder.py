@@ -43,5 +43,5 @@ class RedisInstrumentSearch:
         self.r = redis.Redis(decode_responses=True)
 
     def get_suggestions(self, search):
-        for suggestion in r.ft("instrument_idx").sugget("tradingsymbol", search):
-            yield r.hgetall("instrument:" + suggestion)
+        for suggestion in self.r.ft("instrument_idx").sugget("tradingsymbol", search):
+            yield self.r.hgetall("instrument:" + suggestion.string)

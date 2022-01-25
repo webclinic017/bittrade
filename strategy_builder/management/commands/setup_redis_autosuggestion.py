@@ -20,7 +20,7 @@ class Command(BaseCommand):
             r.ft("instrument_idx").dropindex(delete_documents=True)
             self.stdout.write(self.style.SUCCESS(
                 'Deleting if index already exists'))
-        except:
+        except Exception:
             pass
 
         index_defination = IndexDefinition(prefix=["instrument:"])
