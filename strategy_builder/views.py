@@ -90,13 +90,6 @@ class CreateStrategy(APIView):
             raise APIException('unable to create strategy',
                                code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        tickers = list(map(lambda x: x.split(':')[1], tickers))
-        channel_layer = get_channel_layer()
-        Thread(target=async_to_sync(channel_layer.group_send), args=['USER_PROFILE_'+str(request.user.userprofile.id), {
-            "type": "user.subscribe.tickers",
-            "message": tickers
-        }]).start()
-
         return Response(response_message, status=response_status)
 
 
@@ -106,7 +99,7 @@ class ToggleStrategy(APIView):
     def patch(self, request, pk):
         try:
             strategy = request.user.strategy_list.get(pk=pk)
-        except:
+        except Exception:
             raise APIException(
                 f"strategy with id {pk} not found for the user", code=status.HTTP_404_NOT_FOUND)
 
@@ -127,7 +120,7 @@ class DeleteStrategy(APIView):
 
             strategy.entry_node.delete()
             strategy.exit_node.delete()
-        except:
+        except Exception:
             raise APIException(
                 f"failed to delete strategy with id {pk}", code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
