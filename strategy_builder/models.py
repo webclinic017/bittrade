@@ -71,6 +71,17 @@ class Strategy(models.Model):
         return self.name
 
 
+class Indicator(models.Model):
+    strategy = models.ForeignKey(Strategy, on_delete=models.CASCADE)
+    name = models.CharField(max_length=20)
+
+    inputs = HStoreField()
+    parameters = HStoreField()
+
+    def __str__(self):
+        return self.strategy.name + " " + self.name
+
+
 class StrategyTicker(models.Model):
     ticker = models.CharField(max_length=200)
     exchange = models.CharField(max_length=10)
