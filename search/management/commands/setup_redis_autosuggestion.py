@@ -27,9 +27,11 @@ class Command(BaseCommand):
 
         schema = (
             TextField("tradingsymbol"),
-            NumericField("expiry"),
+            TextField("expiry"),
             TextField("instrument_type"),
             TextField("exchange"),
+            NumericField("instrument_token"),
+            NumericField("lot_size")
         )
 
         r.ft("instrument_idx").create_index(schema, index_defination)
@@ -49,6 +51,8 @@ class Command(BaseCommand):
                     "expiry": str(x["expiry"]),
                     "instrument_type": x["instrument_type"],
                     "exchange": x["exchange"],
+                    "instrument_token": x["instrument_token"],
+                    "lot_size": x["lot_size"]
                 },
                 instruments,
             )
