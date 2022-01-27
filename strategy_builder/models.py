@@ -1,18 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.contrib.postgres.fields import HStoreField
-
 # Create your models here.
-
-
-class TechenicalIndicator(models.Model):
-    key = models.CharField(unique=True, max_length=200)
-    name = models.CharField(max_length=200)
-    indicator_type = models.CharField(max_length=50)
-    input_string = models.CharField(max_length=100)
-
-    def __str__(self):
-        return self.key
 
 
 class Node(models.Model):
@@ -24,7 +12,7 @@ class Node(models.Model):
 
     node_type = models.CharField(max_length=20, choices=NODE_TYPES)
     value = models.CharField(max_length=200)
-    kwargs = HStoreField()
+    kwargs = models.JSONField()
 
     left_child = models.ForeignKey(
         'self', on_delete=models.CASCADE, null=True, blank=True, default=None, related_name='left_children')
@@ -79,6 +67,17 @@ class Strategy(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Indicator(models.Model):
+    strategy = models.ForeignKey(Strategy, on_delete=models.CASCADE)
+    name = models.CharField(max_length=20)
+
+    inputs = models.JSONField()
+    parameters = models.JSONField()
+
+    def __str__(self):
+        return self.strategy.name + " " + self.name
 
 
 class StrategyTicker(models.Model):

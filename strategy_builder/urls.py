@@ -8,5 +8,4 @@ urlpatterns = [
          views.ToggleStrategy.as_view(), name='toggle_strategy'),
     path('delete_strategy/<int:pk>',
          views.DeleteStrategy.as_view(), name='delete_strategy'),
-    path('list_indicators', views.ListTechenicalIndicatorsAPI.as_view()),
 ]
