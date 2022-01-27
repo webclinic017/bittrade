@@ -1,7 +1,5 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.contrib.postgres.fields import HStoreField
-
 # Create your models here.
 
 
@@ -14,7 +12,7 @@ class Node(models.Model):
 
     node_type = models.CharField(max_length=20, choices=NODE_TYPES)
     value = models.CharField(max_length=200)
-    kwargs = HStoreField()
+    kwargs = models.JSONField()
 
     left_child = models.ForeignKey(
         'self', on_delete=models.CASCADE, null=True, blank=True, default=None, related_name='left_children')
@@ -75,8 +73,8 @@ class Indicator(models.Model):
     strategy = models.ForeignKey(Strategy, on_delete=models.CASCADE)
     name = models.CharField(max_length=20)
 
-    inputs = HStoreField()
-    parameters = HStoreField()
+    inputs = models.JSONField()
+    parameters = models.JSONField()
 
     def __str__(self):
         return self.strategy.name + " " + self.name
